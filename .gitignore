@@ -1,0 +1,32 @@
+# .gitignore — FLIDIE
+
+# CRITICAL: Never commit the real .env — it contains HF_TOKEN
+.env
+
+# Python bytecode and caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# uv cache (not the lock file — uv.lock IS committed)
+.uv/
+
+# Test outputs
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+
+# macOS
+.DS_Store

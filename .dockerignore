@@ -1,0 +1,35 @@
+# .dockerignore — FLIDIE
+# Files listed here are excluded from the Docker build context.
+# Smaller build context = faster builds = less memory used by Docker.
+
+# CRITICAL: .env must never be inside the Docker image
+.env
+
+# Git history not needed inside container
+.git/
+.gitignore
+
+# Python caches
+__pycache__/
+*.pyc
+.venv/
+
+# Tests not needed in production image
+test_graders.py
+.pytest_cache/
+
+# Development files not needed in container
+.vscode/
+.idea/
+*.md
+.github/
+
+# Local docker files (don't recurse)
+Dockerfile
+.dockerignore
+
+# Egg info from local installs
+openenv_flidie_env.egg-info
+
+templates/frontend
+templates/frontend/**/*

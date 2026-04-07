@@ -1,0 +1,695 @@
+[
+  {
+    "id": "FIN-M-001",
+    "title": "GST ITC Eligibility — Restaurant Business Purchases",
+    "category": "tax_gst",
+    "context": "Suresh runs a restaurant (registered under GST). In one month he purchased: cooking ingredients Rs 80K (GST 5%), a commercial refrigerator Rs 1.6L (GST 18%), and a delivery car Rs 8L (GST 28%). He wants to know which Input Tax Credit he can legally claim.",
+    "financial_snapshot": {
+      "ingredients_value": 80000,
+      "ingredients_gst": 4000,
+      "refrigerator_value": 160000,
+      "refrigerator_gst": 28800,
+      "car_value": 800000,
+      "car_gst": 224000,
+      "total_gst_paid": 256800,
+      "extra_fields": {}
+    },
+    "options": [
+      {
+        "id": "A",
+        "text": "Claim ITC on refrigerator (Rs 28,800) only — ingredients and car are blocked",
+        "brief": "Partially correct. Car ITC is blocked. But food/ingredients ITC for restaurants is also blocked under S.17(5)."
+      },
+      {
+        "id": "B",
+        "text": "Claim ITC on all three: Rs 4K + Rs 28.8K + Rs 2.24L = Rs 2.568L total",
+        "brief": "Wrong. Car ITC blocked under S.17(5)(a). Food inputs blocked under S.17(5)(b)(i) for restaurants."
+      },
+      {
+        "id": "C",
+        "text": "Claim ITC only on refrigerator Rs 28,800 — food inputs and car are both blocked",
+        "brief": "Correct. Restaurant food inputs are blocked under S.17(5)(b)(i). Car blocked under S.17(5)(a)."
+      },
+      {
+        "id": "D",
+        "text": "Claim no ITC — restaurants cannot claim any input tax credit",
+        "brief": "Wrong. Restaurants can claim ITC on capital goods like refrigerators and commercial equipment."
+      }
+    ],
+    "steps": [
+      {
+        "context": "Step 1 of 2 — Which purchases are eligible for ITC?",
+        "balance_deltas": {
+          "A": 28800,
+          "B": 256800,
+          "C": 28800,
+          "D": 0
+        }
+      },
+      {
+        "context": "Step 2 of 2 — Suresh also paid Rs 12K GST on a business laptop and Rs 8K GST on employee uniforms. Can he claim ITC on these?",
+        "balance_deltas": {
+          "A": 20000,
+          "B": 20000,
+          "C": 12000,
+          "D": 0
+        }
+      }
+    ],
+    "ground_truth": {
+      "step_outcome_map": {
+        "1": {"A": "bad", "B": "harmful", "C": "optimal", "D": "bad"},
+        "2": {"A": "optimal", "B": "neutral", "C": "good", "D": "harmful"}
+      },
+      "key_calculations": [
+        "28800 + 12000",
+        "224000 * 0"
+      ],
+      "has_compliance_trap": false,
+      "law_reference": "CGST Act 2017, S.16 (ITC eligibility), S.17(5)(a) (motor vehicles blocked), S.17(5)(b)(i) (food and beverages blocked for restaurants)."
+    }
+  },
+  {
+    "id": "FIN-M-002",
+    "title": "Income Tax Regime Comparison — Multi-Year Planning",
+    "category": "tax_gst",
+    "context": "Ananya earns Rs 15L per year. Under old regime she claims: 80C Rs 1.5L, 80D Rs 25K, HRA Rs 1.8L, NPS Rs 50K. Total deductions Rs 3.75L. She wants to choose her regime for this year and then plan for next year when she expects a Rs 3L salary hike.",
+    "financial_snapshot": {
+      "current_income": 1500000,
+      "next_year_income": 1800000,
+      "deductions_80c": 150000,
+      "deductions_80d": 25000,
+      "hra_exemption": 180000,
+      "nps_80ccd1b": 50000,
+      "total_deductions": 375000,
+      "old_regime_tax_current": 193500,
+      "new_regime_tax_current": 130000,
+      "old_regime_tax_next": 280500,
+      "new_regime_tax_next": 190000,
+      "extra_fields": {}
+    },
+    "options": [
+      {
+        "id": "A",
+        "text": "Choose New Regime now — saves Rs 63,500 this year",
+        "brief": "Correct. With Rs 3.75L deductions at Rs 15L income, new regime wins. Will also win at Rs 18L next year."
+      },
+      {
+        "id": "B",
+        "text": "Choose Old Regime now — deductions are worth it at Rs 15L",
+        "brief": "Wrong. Even with Rs 3.75L deductions, new regime saves Rs 63,500 at Rs 15L income."
+      },
+      {
+        "id": "C",
+        "text": "Choose Old Regime now and plan to switch to New Regime next year",
+        "brief": "Costs Rs 63,500 this year unnecessarily. New regime is better in both years."
+      },
+      {
+        "id": "D",
+        "text": "It does not matter — both regimes give the same tax at Rs 15L income",
+        "brief": "Factually incorrect. Rs 63,500 difference is significant. Regime choice matters every year."
+      }
+    ],
+    "steps": [
+      {
+        "context": "Step 1 of 2 — Which regime for this year at Rs 15L income?",
+        "balance_deltas": {
+          "A": 63500,
+          "B": 0,
+          "C": 0,
+          "D": 0
+        }
+      },
+      {
+        "context": "Step 2 of 2 — Next year income is Rs 18L. Deductions stay same at Rs 3.75L. Recalculate regime choice.",
+        "balance_deltas": {
+          "A": 90500,
+          "B": 0,
+          "C": 0,
+          "D": 45000
+        }
+      }
+    ],
+    "ground_truth": {
+      "step_outcome_map": {
+        "1": {"A": "optimal", "B": "harmful", "C": "bad", "D": "bad"},
+        "2": {"A": "optimal", "B": "bad", "C": "optimal", "D": "neutral"}
+      },
+      "key_calculations": [
+        "193500 - 130000",
+        "280500 - 190000"
+      ],
+      "has_compliance_trap": false,
+      "law_reference": "Income Tax Act 1961, Section 115BAC — New Regime. Breakeven point where Old Regime wins is when deductions exceed approximately Rs 3.75-4L at Rs 15L income."
+    }
+  },
+  {
+    "id": "FIN-M-003",
+    "title": "Freelancer Advance Tax — December Installment Calculation",
+    "category": "tax_gst",
+    "context": "Pradeep is a freelance developer earning Rs 18L this financial year. He missed the September 15 advance tax deadline entirely (paid nothing). His estimated full-year tax is Rs 2,88,000 after standard deduction. TDS of Rs 18K has been deducted by his clients. It is now December 1. He must calculate what to pay by December 15.",
+    "financial_snapshot": {
+      "estimated_annual_income": 1800000,
+      "estimated_full_year_tax": 288000,
+      "tds_deducted": 18000,
+      "net_tax_due": 270000,
+      "paid_so_far": 0,
+      "september_installment_missed": true,
+      "current_month": "December",
+      "extra_fields": {}
+    },
+    "options": [
+      {
+        "id": "A",
+        "text": "Pay Rs 2,02,500 by December 15 (75% of net tax due of Rs 2,70,000)",
+        "brief": "Correct. December installment requires cumulative 75% paid. Rs 2,70,000 x 0.75 = Rs 2,02,500."
+      },
+      {
+        "id": "B",
+        "text": "Pay Rs 67,500 by December 15 (only the December installment increment of 30%)",
+        "brief": "Wrong. Since September was missed, must pay the cumulative 75% total by December 15, not just 30% increment."
+      },
+      {
+        "id": "C",
+        "text": "Pay nothing in December — pay 100% of tax in March as self-assessment",
+        "brief": "Legal but incurs 234C interest on all missed installments. Additional 234B interest may apply."
+      },
+      {
+        "id": "D",
+        "text": "Pay only Rs 25K for now and revise income estimate downward to reduce liability",
+        "brief": "Fraudulent revision of income estimate without genuine revision in actual income. Tax evasion."
+      }
+    ],
+    "steps": [
+      {
+        "context": "Step 1 of 2 — What amount must Pradeep pay by December 15?",
+        "balance_deltas": {
+          "A": -202500,
+          "B": -67500,
+          "C": 0,
+          "D": -25000
+        }
+      },
+      {
+        "context": "Step 2 of 2 — Pradeep also wants to know: how much 234C interest is he liable for on the missed September installment?",
+        "balance_deltas": {
+          "A": 0,
+          "B": 0,
+          "C": 0,
+          "D": 0
+        }
+      }
+    ],
+    "ground_truth": {
+      "step_outcome_map": {
+        "1": {"A": "optimal", "B": "bad", "C": "neutral", "D": "illegal"},
+        "2": {"A": "optimal", "B": "good", "C": "neutral", "D": "bad"}
+      },
+      "key_calculations": [
+        "270000 * 0.75",
+        "270000 * 0.45 * 0.01 * 3"
+      ],
+      "has_compliance_trap": false,
+      "law_reference": "Income Tax Act 1961, Section 234C — Interest at 1% per month for shortfall in each installment. September deadline: 45% cumulative. December deadline: 75% cumulative."
+    }
+  },
+  {
+    "id": "FIN-M-004",
+    "title": "LTCG Tax Harvesting — Sell and Rebuy Strategy",
+    "category": "investments",
+    "context": "Kavya has a mutual fund portfolio that has gained Rs 2.8L in long-term capital gains over 3 years. The LTCG annual exemption is Rs 1.25L. She has not redeemed any equity investments this financial year. It is March 1. She wants to minimize her LTCG tax before and after March 31.",
+    "financial_snapshot": {
+      "unrealized_ltcg": 280000,
+      "ltcg_annual_exemption": 125000,
+      "ltcg_tax_rate": 0.125,
+      "redeemed_this_year": 0,
+      "days_remaining_in_fy": 30,
+      "extra_fields": {}
+    },
+    "options": [
+      {
+        "id": "A",
+        "text": "Redeem Rs 1.25L gain worth of units before March 31 — pay zero tax, use this year's exemption",
+        "brief": "Correct Step 1. Use this FY's Rs 1.25L exemption. Rebuy same units on April 1."
+      },
+      {
+        "id": "B",
+        "text": "Redeem all Rs 2.8L gain — pay tax on Rs 1.55L above exemption",
+        "brief": "Suboptimal. Pays Rs 19,375 tax unnecessarily on Rs 1.55L that could be deferred to next FY."
+      },
+      {
+        "id": "C",
+        "text": "Do nothing this FY — redeem all Rs 2.8L after April 1 using next year's exemption",
+        "brief": "Wastes this year's Rs 1.25L exemption entirely. Still owes tax on Rs 1.55L."
+      },
+      {
+        "id": "D",
+        "text": "Do not declare LTCG — long-term gains under 3 years are not taxable",
+        "brief": "Completely wrong. LTCG on listed equity above Rs 1.25L is taxable at 12.5% since FY 2018-19."
+      }
+    ],
+    "steps": [
+      {
+        "context": "Step 1 of 2 — What to do before March 31?",
+        "balance_deltas": {
+          "A": 125000,
+          "B": 125000,
+          "C": 0,
+          "D": 0
+        }
+      },
+      {
+        "context": "Step 2 of 2 — In April of next year, Kavya wants to handle the remaining Rs 1.55L gain. What is the optimal approach?",
+        "balance_deltas": {
+          "A": 125000,
+          "B": 30000,
+          "C": 19375,
+          "D": 0
+        }
+      }
+    ],
+    "ground_truth": {
+      "step_outcome_map": {
+        "1": {"A": "optimal", "B": "neutral", "C": "bad", "D": "illegal"},
+        "2": {"A": "optimal", "B": "good", "C": "neutral", "D": "bad"}
+      },
+      "key_calculations": [
+        "280000 - 125000",
+        "155000 * 0.125"
+      ],
+      "has_compliance_trap": false,
+      "law_reference": "Income Tax Act 1961, Section 112A — LTCG on listed equity above Rs 1.25L taxed at 12.5%. No grandfathering after Jan 31, 2018 cost basis."
+    }
+  },
+  {
+    "id": "FIN-M-005",
+    "title": "HRA Exemption Calculation — Metro City Employee",
+    "category": "tax_gst",
+    "context": "Riya works in Mumbai (metro city). Her monthly salary structure is: Basic Rs 40K, HRA Rs 20K, other allowances Rs 15K. She pays actual rent of Rs 22K per month. She wants to calculate her HRA exemption for the full year.",
+    "financial_snapshot": {
+      "monthly_basic": 40000,
+      "monthly_hra": 20000,
+      "monthly_rent_paid": 22000,
+      "city_type": "metro",
+      "annual_basic": 480000,
+      "annual_hra_received": 240000,
+      "annual_rent_paid": 264000,
+      "extra_fields": {}
+    },
+    "options": [
+      {
+        "id": "A",
+        "text": "HRA exemption is Rs 1,92,000 — the minimum of the three prescribed calculations",
+        "brief": "Correct. Minimum of: actual HRA received (Rs 2.4L), 50% of basic (Rs 2.4L), rent minus 10% basic (Rs 2.16L - wait, check calculation)."
+      },
+      {
+        "id": "B",
+        "text": "HRA exemption is Rs 2,40,000 — the entire HRA received is exempt",
+        "brief": "Wrong. Must take minimum of three amounts. Rent minus 10% basic gives a lower figure."
+      },
+      {
+        "id": "C",
+        "text": "HRA exemption is Rs 2,16,000 — rent paid minus 10% of basic annual salary",
+        "brief": "Correct calculation: Rs 2,64,000 rent minus Rs 48,000 (10% of Rs 4,80,000 basic) = Rs 2,16,000. This is the minimum."
+      },
+      {
+        "id": "D",
+        "text": "No HRA exemption because rent exceeds basic salary",
+        "brief": "Completely wrong. HRA exemption formula does not require rent to be below basic salary."
+      }
+    ],
+    "steps": [
+      {
+        "context": "Step 1 of 2 — Calculate the minimum of the three HRA exemption limits for Riya.",
+        "balance_deltas": {
+          "A": 192000,
+          "B": 240000,
+          "C": 216000,
+          "D": 0
+        }
+      },
+      {
+        "context": "Step 2 of 2 — Riya's company asks her to submit Form 12BB with rent receipts. Her landlord is her father. Does she still need to submit? What are the rules?",
+        "balance_deltas": {
+          "A": 0,
+          "B": 0,
+          "C": 0,
+          "D": 0
+        }
+      }
+    ],
+    "ground_truth": {
+      "step_outcome_map": {
+        "1": {"A": "bad", "B": "harmful", "C": "optimal", "D": "bad"},
+        "2": {"A": "optimal", "B": "good", "C": "neutral", "D": "bad"}
+      },
+      "key_calculations": [
+        "480000 * 0.5",
+        "264000 - 480000 * 0.1"
+      ],
+      "has_compliance_trap": false,
+      "law_reference": "Income Tax Act 1961, Section 10(13A) read with Rule 2A — HRA exemption is minimum of: (1) actual HRA received, (2) 50% of basic (metro) or 40% (non-metro), (3) rent paid minus 10% of annual basic."
+    }
+  },
+  {
+    "id": "FIN-M-006",
+    "title": "Rental Income Tax — Home Loan Interest and Standard Deduction",
+    "category": "tax_gst",
+    "context": "Manish owns a second property he rents out at Rs 25K per month (Rs 3L per year). He pays Rs 1.8L annual interest on the home loan for this property. He is in the 30% tax bracket. He wants to know his net tax on the rental income.",
+    "financial_snapshot": {
+      "annual_rent": 300000,
+      "home_loan_interest": 180000,
+      "tax_bracket": "30%",
+      "municipal_taxes_paid": 12000,
+      "extra_fields": {}
+    },
+    "options": [
+      {
+        "id": "A",
+        "text": "Net Annual Value after standard deduction and loan interest: Rs (3L - 1.2L) x 30% = Rs 54K tax wait — recalculate with correct deductions",
+        "brief": "Apply: (Gross Rent - Municipal Tax) = Net Annual Value. Then 30% standard deduction. Then loan interest."
+      },
+      {
+        "id": "B",
+        "text": "Pay tax on full rent Rs 3L at 30% slab = Rs 90K — no deductions allowed on rental income",
+        "brief": "Wrong. Standard deduction under S.24(a) and loan interest under S.24(b) are both allowed."
+      },
+      {
+        "id": "C",
+        "text": "Tax = (3L - 1.8L loan interest) x 30% = Rs 36K — only loan interest deducted",
+        "brief": "Wrong. Municipal tax and standard deduction also apply before computing taxable rental income."
+      },
+      {
+        "id": "D",
+        "text": "Rental income is exempt under Section 80 — no tax applies on rental from own property",
+        "brief": "Completely wrong. Rental income is taxable under Income from House Property. No blanket exemption."
+      }
+    ],
+    "steps": [
+      {
+        "context": "Step 1 of 2 — Calculate Net Annual Value and apply standard deduction.",
+        "balance_deltas": {
+          "A": 0,
+          "B": 0,
+          "C": 0,
+          "D": 0
+        }
+      },
+      {
+        "context": "Step 2 of 2 — Apply home loan interest deduction and calculate final tax on rental income.",
+        "balance_deltas": {
+          "A": 0,
+          "B": 0,
+          "C": 0,
+          "D": 0
+        }
+      }
+    ],
+    "ground_truth": {
+      "step_outcome_map": {
+        "1": {"A": "optimal", "B": "bad", "C": "neutral", "D": "bad"},
+        "2": {"A": "optimal", "B": "harmful", "C": "bad", "D": "illegal"}
+      },
+      "key_calculations": [
+        "(300000 - 12000) * 0.7",
+        "201600 - 180000"
+      ],
+      "has_compliance_trap": false,
+      "law_reference": "Income Tax Act 1961, Section 24(a) — Standard deduction 30% of Net Annual Value. Section 24(b) — Home loan interest deduction on let-out property has no upper limit (unlike self-occupied Rs 2L cap)."
+    }
+  },
+  {
+    "id": "FIN-M-007",
+    "title": "Section 44ADA — Presumptive Taxation for Professionals",
+    "category": "tax_gst",
+    "context": "Dr. Shalini is a freelance radiologist with professional receipts of Rs 28L in FY 2024-25. She has actual professional expenses of Rs 6L. Her CA mentioned Section 44ADA. She wants to know if she should use presumptive taxation or actual expenses.",
+    "financial_snapshot": {
+      "gross_professional_receipts": 2800000,
+      "actual_expenses": 600000,
+      "actual_net_income": 2200000,
+      "presumptive_income_50pct": 1400000,
+      "tax_bracket": "30%",
+      "extra_fields": {}
+    },
+    "options": [
+      {
+        "id": "A",
+        "text": "Use Section 44ADA presumptive: declare 50% of receipts (Rs 14L) as income — pay tax on Rs 14L",
+        "brief": "Optimal. Saves Rs 2.4L tax vs actual expenses. No need to maintain books or audit."
+      },
+      {
+        "id": "B",
+        "text": "File with actual income Rs 22L and deduct actual expenses Rs 6L",
+        "brief": "Legal but pays Rs 2.4L more tax than 44ADA. Also requires full books of accounts and possible audit."
+      },
+      {
+        "id": "C",
+        "text": "Inflate expenses to Rs 14L to match presumptive income level",
+        "brief": "Tax fraud. Inflating expenses without genuine bills is a criminal offense under IT Act."
+      },
+      {
+        "id": "D",
+        "text": "44ADA does not apply to doctors — only for consultants and engineers",
+        "brief": "Wrong. Section 44ADA applies to all specified professionals including doctors, lawyers, architects, CAs, engineers."
+      }
+    ],
+    "steps": [
+      {
+        "context": "Step 1 of 2 — Should Dr. Shalini opt for Section 44ADA?",
+        "balance_deltas": {
+          "A": 240000,
+          "B": 0,
+          "C": 0,
+          "D": 0
+        }
+      },
+      {
+        "context": "Step 2 of 2 — Under 44ADA, can Dr. Shalini also claim deductions under 80C, 80D, NPS (80CCD1B)?",
+        "balance_deltas": {
+          "A": 105000,
+          "B": 0,
+          "C": 0,
+          "D": 0
+        }
+      }
+    ],
+    "ground_truth": {
+      "step_outcome_map": {
+        "1": {"A": "optimal", "B": "neutral", "C": "illegal", "D": "bad"},
+        "2": {"A": "optimal", "B": "good", "C": "bad", "D": "bad"}
+      },
+      "key_calculations": [
+        "2800000 * 0.5",
+        "(2200000 - 1400000) * 0.3"
+      ],
+      "has_compliance_trap": false,
+      "law_reference": "Income Tax Act 1961, Section 44ADA — Professionals with receipts up to Rs 75L can declare 50% as income. No books required. 80C and other Chapter VI-A deductions still available on top."
+    }
+  },
+  {
+    "id": "FIN-M-008",
+    "title": "Home Loan — First-Time Buyer Tax Benefits",
+    "category": "personal_finance",
+    "context": "Amit is a first-time home buyer who purchased a property worth Rs 40L with a home loan of Rs 35L at 8.5% interest. Loan started April 2024. He pays Rs 2.5L annual interest and Rs 80K principal in the first year. He earns Rs 12L per year in the old tax regime.",
+    "financial_snapshot": {
+      "property_value": 4000000,
+      "loan_amount": 3500000,
+      "interest_rate": 0.085,
+      "first_year_interest": 250000,
+      "first_year_principal": 80000,
+      "annual_income": 1200000,
+      "tax_bracket": "30%",
+      "extra_fields": {}
+    },
+    "options": [
+      {
+        "id": "A",
+        "text": "Claim Rs 2L interest under S.24(b) and Rs 80K principal under S.80C — total deductions Rs 2.8L",
+        "brief": "Correct for self-occupied property. Interest capped at Rs 2L under S.24(b). Principal under 80C within Rs 1.5L limit."
+      },
+      {
+        "id": "B",
+        "text": "Claim full Rs 2.5L interest under S.24(b) and Rs 80K under 80C",
+        "brief": "Wrong. Self-occupied property home loan interest is capped at Rs 2L per year under S.24(b)."
+      },
+      {
+        "id": "C",
+        "text": "Claim Rs 2L under S.24(b), Rs 80K under 80C, and check eligibility for Rs 50K extra under 80EE",
+        "brief": "Good. 80EE gives Rs 50K extra if loan sanctioned before March 2022. Need to verify sanction date."
+      },
+      {
+        "id": "D",
+        "text": "Home loan deductions only available after property construction is complete — nothing to claim now",
+        "brief": "Wrong. Ready-to-occupy property loan interest is immediately deductible from the year of possession."
+      }
+    ],
+    "steps": [
+      {
+        "context": "Step 1 of 2 — What is the maximum home loan interest deduction Amit can claim?",
+        "balance_deltas": {
+          "A": 60000,
+          "B": 75000,
+          "C": 90000,
+          "D": 0
+        }
+      },
+      {
+        "context": "Step 2 of 2 — Amit discovers the loan was sanctioned in March 2022. Is Section 80EE or 80EEA applicable?",
+        "balance_deltas": {
+          "A": 0,
+          "B": 0,
+          "C": 15000,
+          "D": 0
+        }
+      }
+    ],
+    "ground_truth": {
+      "step_outcome_map": {
+        "1": {"A": "good", "B": "bad", "C": "optimal", "D": "bad"},
+        "2": {"A": "neutral", "B": "bad", "C": "optimal", "D": "bad"}
+      },
+      "key_calculations": [
+        "200000 * 0.3",
+        "80000 + 200000"
+      ],
+      "has_compliance_trap": false,
+      "law_reference": "Income Tax Act 1961, Section 24(b) — Interest on self-occupied property capped at Rs 2L. Section 80C — Principal repayment within Rs 1.5L limit. Section 80EEA — Additional Rs 1.5L if loan sanctioned between April 2019 and March 2022."
+    }
+  },
+  {
+    "id": "FIN-M-009",
+    "title": "Sovereign Gold Bond vs Gold ETF vs Physical Gold",
+    "category": "investments",
+    "context": "Nisha wants to invest Rs 5L in gold as part of her portfolio. She has three options: Sovereign Gold Bonds (SGB), Gold ETFs, or physical gold coins. She is in the 30% tax bracket and plans to hold for 8 years. She wants maximum post-tax returns.",
+    "financial_snapshot": {
+      "investment_amount": 500000,
+      "holding_period_years": 8,
+      "tax_bracket": "30%",
+      "sgb_interest_rate": 0.025,
+      "gold_etf_annual_expense_ratio": 0.005,
+      "physical_gold_making_charges": 0.10,
+      "extra_fields": {}
+    },
+    "options": [
+      {
+        "id": "A",
+        "text": "Sovereign Gold Bonds — 2.5% annual interest plus gold price appreciation, maturity gain tax-free",
+        "brief": "Best option. 2.5% annual interest (taxable) plus zero capital gains tax at 8-year maturity."
+      },
+      {
+        "id": "B",
+        "text": "Gold ETF — easy to buy and sell, tracks gold price accurately",
+        "brief": "Good. No storage risk. But LTCG taxed at 20% with indexation vs zero tax for SGB at maturity."
+      },
+      {
+        "id": "C",
+        "text": "Physical gold coins from bank — tangible asset",
+        "brief": "Worst option. 10%+ making charges, storage cost, no interest, LTCG tax applies. Loses 10% immediately."
+      },
+      {
+        "id": "D",
+        "text": "Gold futures on commodity exchange — leveraged exposure",
+        "brief": "Not suitable for long-term holding. Futures require rollover, incur losses on contango. Not a gold investment vehicle."
+      }
+    ],
+    "steps": [
+      {
+        "context": "Step 1 of 2 — Which gold investment vehicle has the best post-tax return for 8-year holding?",
+        "balance_deltas": {
+          "A": 100000,
+          "B": 75000,
+          "C": 0,
+          "D": -50000
+        }
+      },
+      {
+        "context": "Step 2 of 2 — If Nisha needs to exit gold investment after only 3 years due to emergency, which option gives her the best flexibility and returns?",
+        "balance_deltas": {
+          "A": -25000,
+          "B": 50000,
+          "C": -10000,
+          "D": -75000
+        }
+      }
+    ],
+    "ground_truth": {
+      "step_outcome_map": {
+        "1": {"A": "optimal", "B": "good", "C": "bad", "D": "harmful"},
+        "2": {"A": "bad", "B": "optimal", "C": "neutral", "D": "harmful"}
+      },
+      "key_calculations": [
+        "500000 * 0.025 * 8",
+        "500000 * 0.10"
+      ],
+      "has_compliance_trap": false,
+      "law_reference": "Income Tax Act 1961, Section 47(viic) — Redemption of SGB at maturity is exempt from capital gains tax. LTCG on Gold ETF taxed at 20% with indexation if held over 3 years."
+    }
+  },
+  {
+    "id": "FIN-M-010",
+    "title": "NPS Partial Withdrawal Rules",
+    "category": "investments",
+    "context": "Suresh has been contributing to NPS Tier-1 for 11 years. His corpus is Rs 18L. He needs Rs 5L urgently for his daughter's education. He wants to know if he can withdraw from NPS and what the tax treatment will be.",
+    "financial_snapshot": {
+      "nps_corpus": 1800000,
+      "years_in_nps": 11,
+      "withdrawal_requested": 500000,
+      "purpose": "higher_education",
+      "extra_fields": {}
+    },
+    "options": [
+      {
+        "id": "A",
+        "text": "Withdraw Rs 5L under partial withdrawal rules — 25% of own contributions allowed after 3 years for specified purposes",
+        "brief": "Correct. After 3 years, up to 25% of own contributions can be withdrawn tax-free for education, marriage, or medical emergency."
+      },
+      {
+        "id": "B",
+        "text": "Close NPS account entirely and withdraw full Rs 18L — education is a valid reason",
+        "brief": "Wrong. Premature full closure before age 60 requires 80% to be invested in annuity. Only 20% received as lump sum."
+      },
+      {
+        "id": "C",
+        "text": "NPS does not allow any withdrawal before age 60 under any circumstances",
+        "brief": "Wrong. PFRDA allows partial withdrawal up to 25% of own contributions after 3 years for specified purposes."
+      },
+      {
+        "id": "D",
+        "text": "Withdraw Rs 5L and declare it as salary income in this year's ITR",
+        "brief": "Wrong classification. Partial NPS withdrawal for specified purposes is tax-free — not taxable as salary."
+      }
+    ],
+    "steps": [
+      {
+        "context": "Step 1 of 2 — Is Suresh eligible for partial withdrawal and how much can he take?",
+        "balance_deltas": {
+          "A": 500000,
+          "B": -100000,
+          "C": 0,
+          "D": -150000
+        }
+      },
+      {
+        "context": "Step 2 of 2 — What is the tax treatment of the Rs 5L partial NPS withdrawal for education?",
+        "balance_deltas": {
+          "A": 0,
+          "B": -150000,
+          "C": -50000,
+          "D": -150000
+        }
+      }
+    ],
+    "ground_truth": {
+      "step_outcome_map": {
+        "1": {"A": "optimal", "B": "bad", "C": "bad", "D": "bad"},
+        "2": {"A": "optimal", "B": "illegal", "C": "bad", "D": "bad"}
+      },
+      "key_calculations": [
+        "1800000 * 0.25",
+        "500000 * 0"
+      ],
+      "has_compliance_trap": false,
+      "law_reference": "PFRDA Regulations 2015 — Partial withdrawal allowed after 3 years up to 25% of own contributions for higher education, marriage, critical illness, or house purchase. Tax-free under Section 10(12A)."
+    }
+  }
+]

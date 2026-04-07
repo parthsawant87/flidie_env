@@ -1,0 +1,94 @@
+# openenv.yaml — FLIDIE OpenEnv Submission
+# ─────────────────────────────────────────────────────────────────────────────
+# This file is the first thing openenv validate reads.
+# task ids here MUST exactly match TASK_REGISTRY keys in tasks.py.
+# ─────────────────────────────────────────────────────────────────────────────
+spec_version: 1
+type: space
+runtime: docker
+port: 7860
+app: server.app:app
+
+task_ids:
+  - financial_optimize
+  - tax_planning
+  - startup_compliance
+
+name: flidie-env
+version: "1.0.0"
+description: >
+  Finance and Legal Decision Intelligence Environment for Indian financial
+  scenarios. AI agents navigate tax optimization, GST compliance, ESOP
+  taxation, and startup legal decisions. Ground truth sourced from Income
+  Tax Act 1961, CGST Act 2017, SEBI regulations, and FEMA 2000.
+  Unique mechanic: six reward tiers including -1.00 for illegal advice
+  that violates Indian statute.
+
+author: groot87
+
+tags:
+  - openenv
+  - finance
+  - legal
+  - india
+  - tax
+  - compliance
+
+tasks:
+  - id: financial_optimize
+    name: "Financial Decision Optimization"
+    difficulty: easy
+    description: >
+      Single-step decision: choose the optimal financial action (A/B/C/D)
+      for an Indian taxpayer. Covers Section 80C investment choices, tax
+      regime selection, and insurance vs. investment trade-offs.
+    max_steps: 6
+    score_range: [-1.0, 1.0]
+
+  - id: tax_planning
+    name: "Multi-Step Tax Planning"
+    difficulty: medium
+    description: >
+      Three-step scenario where each decision changes the financial state.
+      Agent must verify arithmetic via calculate() before deciding.
+      Covers GST ITC eligibility, advance tax installments, and
+      multi-year tax optimization strategies.
+    max_steps: 10
+    score_range: [-1.0, 1.0]
+
+  - id: startup_compliance
+    name: "Startup Compliance Audit"
+    difficulty: hard
+    description: >
+      Startup founder believes they are compliant. A hidden violation
+      may exist under CGST Act, IT Act, SEBI, or FEMA. Agent must
+      identify the compliance trap, advise correctly, and recommend
+      professional escalation when needed. Scored across four dimensions:
+      decision (40%), trap detection (25%), escalation (20%), calculation (15%).
+    max_steps: 10
+    score_range: [-1.0, 1.0]
+
+endpoints:
+  reset: /reset
+  step:  /step
+  state: /state
+  health: /health
+
+action_space:
+  type: structured
+  description: "Five action types. choose_option terminates the episode."
+  actions:
+    - choose_option
+    - calculate
+    - flag_compliance_risk
+    - escalate_to_professional
+    - ask_clarification
+
+observation_space:
+  type: structured
+  description: "ScenarioObservation. Ground truth structurally excluded."
+
+reward:
+  type: float
+  range: [-1.0, 1.0]
+  description: "Six-tier TIER_REWARD mapping. illegal=-1.00 is unique FLIDIE mechanic."

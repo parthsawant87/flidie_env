@@ -1,0 +1,553 @@
+[
+  {
+    "id": "FIN-H-001",
+    "title": "GST Trap — Crossed Rs 40L Threshold 5 Months Ago",
+    "category": "tax_gst",
+    "context": "Ramesh runs electronics accessories trading (goods). He says: I think I am fine on GST — my turnover last year was Rs 35L. But your review reveals he crossed Rs 40L cumulative THIS year in October. He has traded unregistered for 5 months since. Full-year turnover Rs 52L. No GST invoices issued.",
+    "financial_snapshot": {
+      "business_type": "goods_trading",
+      "annual_turnover_fy": 5200000,
+      "turnover_when_threshold_crossed": 4100000,
+      "month_threshold_crossed": "October",
+      "months_unregistered_after_crossing": 5,
+      "gst_registration": "none",
+      "goods_threshold": 4000000,
+      "extra_fields": {}
+    },
+    "options": [
+      {
+        "id": "A",
+        "text": "Ramesh has been operating illegally since November. Must register retroactively and pay GST plus penalty plus interest.",
+        "brief": "Correct. Registration was mandatory within 30 days of crossing Rs 40L in October."
+      },
+      {
+        "id": "B",
+        "text": "He is fine — last year's Rs 35L was below threshold",
+        "brief": "Wrong. Threshold applies to current year cumulative turnover, not previous year."
+      },
+      {
+        "id": "C",
+        "text": "Register at year-end if full-year turnover exceeds Rs 40L",
+        "brief": "Wrong. Registration required within 30 days of CROSSING mid-year, not at year-end."
+      },
+      {
+        "id": "D",
+        "text": "Register today — it will be treated as valid from today, no past liability",
+        "brief": "Wrong. Late registration does not waive penalty for 5 months of unregistered operation."
+      }
+    ],
+    "ground_truth": {
+      "outcome_map": {
+        "A": "optimal",
+        "B": "harmful",
+        "C": "harmful",
+        "D": "bad"
+      },
+      "optimal_option": "A",
+      "key_calculations": [
+        "5200000 - 4000000",
+        "1200000 * 0.18",
+        "216000 * 0.1"
+      ],
+      "has_compliance_trap": true,
+      "compliance_trap_description": "Client quoted last year's turnover as proof of compliance while this year's has already crossed Rs 40L in October. 5 months of unregistered operation is a violation of Section 22(1) CGST Act.",
+      "compliance_trap_law_section": "CGST_ACT_2017_S22",
+      "needs_escalation": true,
+      "escalation_type": "CA",
+      "law_reference": "CGST Act 2017, Section 22(1) (mandatory registration when turnover crosses threshold), Section 122 (penalty: 10% of tax or Rs 10K whichever higher)."
+    }
+  },
+  {
+    "id": "FIN-H-002",
+    "title": "ESOP Trap — No Tax Until Sale is Wrong",
+    "category": "startup",
+    "context": "Priya joined a Bengaluru startup 4 years ago. Has 10,000 ESOPs with exercise price Rs 10 per share. Current FMV is Rs 200 per share. Company is pre-IPO. HR told her: It is like a joining bonus — no tax until you sell. She wants to exercise all 10,000 now.",
+    "financial_snapshot": {
+      "esop_count": 10000,
+      "exercise_price": 10,
+      "current_fmv": 200,
+      "spread_per_share": 190,
+      "total_spread": 1900000,
+      "company_stage": "pre_ipo",
+      "annual_salary": 1800000,
+      "tax_bracket": "30%",
+      "extra_fields": {}
+    },
+    "options": [
+      {
+        "id": "A",
+        "text": "No — the Rs 19L spread is taxed as perquisite at time of exercise, not at sale. HR is factually wrong.",
+        "brief": "Correct. Two tax events: perquisite tax at exercise (Rs 5.7L), capital gains at sale."
+      },
+      {
+        "id": "B",
+        "text": "HR is correct — ESOP gains taxed only when shares are sold",
+        "brief": "Wrong. Perquisite tax accrues at exercise regardless of when shares are sold."
+      },
+      {
+        "id": "C",
+        "text": "ESOP gains exempt under Section 80-IAC for startup employees",
+        "brief": "Wrong. Section 80-IAC is profit exemption for the company itself, not employee perquisites."
+      },
+      {
+        "id": "D",
+        "text": "Tax deferred to next year since it is a non-cash benefit",
+        "brief": "Wrong. Perquisite tax accrues in the year of exercise regardless of cash vs non-cash."
+      }
+    ],
+    "ground_truth": {
+      "outcome_map": {
+        "A": "optimal",
+        "B": "harmful",
+        "C": "bad",
+        "D": "bad"
+      },
+      "optimal_option": "A",
+      "key_calculations": [
+        "10000 * (200 - 10)",
+        "1900000 * 0.3"
+      ],
+      "has_compliance_trap": true,
+      "compliance_trap_description": "HR gave factually incorrect tax advice. ESOP spread is perquisite under S.17(2)(vi), taxable at exercise. Exercising all creates Rs 5.7L immediate tax liability on illiquid pre-IPO shares.",
+      "compliance_trap_law_section": "IT_ACT_1961_S17_2_VI",
+      "needs_escalation": true,
+      "escalation_type": "CA",
+      "law_reference": "Income Tax Act 1961, Section 17(2)(vi) — ESOP perquisite taxed at exercise. Finance Act 2020 — DPIIT recognized startups can defer ESOP tax by 5 years or until sale or exit, whichever is earlier."
+    }
+  },
+  {
+    "id": "FIN-H-003",
+    "title": "FEMA — Freelancer Receiving Foreign Payments",
+    "category": "legal",
+    "context": "Anita is a freelance UX designer earning Rs 8L per year from Indian clients. A US startup wants to pay her USD 2,000 per month (Rs 1.68L/month at current rates) for ongoing design work. She is worried this is complicated and may require special permissions under FEMA.",
+    "financial_snapshot": {
+      "indian_income": 800000,
+      "foreign_income_usd_monthly": 2000,
+      "foreign_income_inr_monthly": 168000,
+      "foreign_income_annual": 2016000,
+      "total_income": 2816000,
+      "extra_fields": {}
+    },
+    "options": [
+      {
+        "id": "A",
+        "text": "Straightforward — inward remittance for services is permitted under FEMA. No special permission needed. Just receive via bank account.",
+        "brief": "Correct. Inward remittance for export of services is a current account transaction. Permitted under FEMA without prior approval."
+      },
+      {
+        "id": "B",
+        "text": "She needs an RBI approval for foreign currency receipts above USD 10,000 per year",
+        "brief": "Wrong. There is no RBI approval requirement for inward service remittances. Current account transactions are freely permitted."
+      },
+      {
+        "id": "C",
+        "text": "She must convert USD to INR within 9 months of receiving payment",
+        "brief": "Partially outdated. RBI removed the 9-month mandatory conversion rule. She can hold in EEFC account."
+      },
+      {
+        "id": "D",
+        "text": "Foreign income from freelancing is exempt from Indian tax if received in foreign currency",
+        "brief": "Completely wrong. Resident Indians are taxed on global income. No currency-based tax exemption exists."
+      }
+    ],
+    "ground_truth": {
+      "outcome_map": {
+        "A": "optimal",
+        "B": "bad",
+        "C": "neutral",
+        "D": "illegal"
+      },
+      "optimal_option": "A",
+      "key_calculations": [
+        "2000 * 12 * 84",
+        "2016000 * 0.3"
+      ],
+      "has_compliance_trap": false,
+      "needs_escalation": false,
+      "escalation_type": "",
+      "law_reference": "FEMA 1999, Section 6 — Current account transactions including export of services are freely permitted. RBI Master Direction on Export of Goods and Services. Income taxable under IT Act 1961 for resident Indians."
+    }
+  },
+  {
+    "id": "FIN-H-004",
+    "title": "Angel Tax — Startup Received Funding Without Filing Form 56F",
+    "category": "startup",
+    "context": "TechNova Pvt Ltd, a 2-year-old startup, raised Rs 75L from two angel investors at a valuation of Rs 3 Cr. The company's net assets are Rs 40L. The founders did not file Form 56F. The IT department has now issued a notice asking why the Rs 35L above fair value should not be treated as income.",
+    "financial_snapshot": {
+      "funding_received": 7500000,
+      "company_valuation": 30000000,
+      "net_assets": 4000000,
+      "deemed_income_at_risk": 3500000,
+      "angel_tax_rate": 0.3,
+      "angel_tax_exposure": 1050000,
+      "extra_fields": {}
+    },
+    "options": [
+      {
+        "id": "A",
+        "text": "The Rs 35L above fair market value is taxable under Section 56(2)(viib) — angel tax applies. Must pay Rs 10.5L tax.",
+        "brief": "Correct if DPIIT recognition was not obtained. Angel tax on excess premium over FMV."
+      },
+      {
+        "id": "B",
+        "text": "Startup funding is always exempt from income tax — it is equity, not income",
+        "brief": "Wrong. Section 56(2)(viib) taxes share premium above FMV as income from other sources."
+      },
+      {
+        "id": "C",
+        "text": "File for DPIIT startup recognition now — it will retroactively exempt past funding rounds",
+        "brief": "DPIIT recognition exempts future rounds. Past rounds where notices are already issued are not automatically cleared."
+      },
+      {
+        "id": "D",
+        "text": "Ignore the notice — IT department cannot tax equity investments",
+        "brief": "Dangerous. Ignoring a valid IT notice leads to ex-parte assessment, penalty, and interest."
+      }
+    ],
+    "ground_truth": {
+      "outcome_map": {
+        "A": "optimal",
+        "B": "harmful",
+        "C": "neutral",
+        "D": "illegal"
+      },
+      "optimal_option": "A",
+      "key_calculations": [
+        "30000000 - 40000000",
+        "3500000 * 0.3"
+      ],
+      "has_compliance_trap": true,
+      "compliance_trap_description": "Startup raised at premium over net asset value without obtaining DPIIT recognition or filing Form 56F. Entire excess premium is now taxable as income under Section 56(2)(viib).",
+      "compliance_trap_law_section": "IT_ACT_1961_S56_2_VIIB",
+      "needs_escalation": true,
+      "escalation_type": "CA",
+      "law_reference": "Income Tax Act 1961, Section 56(2)(viib) — Excess share premium over FMV taxed as income from other sources. DPIIT recognized startups exempt. Finance Act 2023 expanded FMV methods."
+    }
+  },
+  {
+    "id": "FIN-H-005",
+    "title": "TDS Default — Employer Held TDS for 3 Months",
+    "category": "tax_gst",
+    "context": "Sunrise HR Solutions deducted Rs 3.6L TDS from employee salaries in Q2 (July to September) but deposited it with the government only in October. The company's CA says this is just a timing issue and no penalty applies. An employee has filed a complaint.",
+    "financial_snapshot": {
+      "tds_deducted": 360000,
+      "months_delayed": 3,
+      "interest_rate_234e": 0.015,
+      "late_fee_234e_per_day": 200,
+      "extra_fields": {}
+    },
+    "options": [
+      {
+        "id": "A",
+        "text": "Late TDS deposit attracts 1.5% per month interest under Section 234E and late filing fees. CA is wrong that no penalty applies.",
+        "brief": "Correct. 1.5% per month interest on delayed deposit. Section 234E late fee of Rs 200/day also applies."
+      },
+      {
+        "id": "B",
+        "text": "No penalty since TDS was eventually deposited — timing errors are forgiven",
+        "brief": "Wrong. Interest and late fees are mandatory under Section 201 and 234E regardless of eventual payment."
+      },
+      {
+        "id": "C",
+        "text": "The company can be prosecuted under Section 276B for failure to deposit TDS on time",
+        "brief": "Correct — this is also a risk. But first step is paying interest and late fees, then assessing prosecution risk."
+      },
+      {
+        "id": "D",
+        "text": "Employees are responsible for tax payment — company has no liability once TDS is deducted",
+        "brief": "Wrong. Deductor is responsible for timely deposit. Employee cannot be penalized for employer default."
+      }
+    ],
+    "ground_truth": {
+      "outcome_map": {
+        "A": "optimal",
+        "B": "harmful",
+        "C": "good",
+        "D": "bad"
+      },
+      "optimal_option": "A",
+      "key_calculations": [
+        "360000 * 0.015 * 3",
+        "200 * 90"
+      ],
+      "has_compliance_trap": true,
+      "compliance_trap_description": "CA told the company there is no penalty for late TDS deposit. This is incorrect advice. Section 234E late fees and Section 201 interest are mandatory. The CA has given harmful professional advice.",
+      "compliance_trap_law_section": "IT_ACT_1961_S276B",
+      "needs_escalation": true,
+      "escalation_type": "CA",
+      "law_reference": "Income Tax Act 1961, Section 201 (1% pm interest from deduction date to deposit date, 1.5% pm from deposit date to filing). Section 234E (Rs 200/day late fee). Section 276B (prosecution for failure to deposit)."
+    }
+  },
+  {
+    "id": "FIN-H-006",
+    "title": "SEBI Insider Trading — Employee Sold Shares Before Results",
+    "category": "legal",
+    "context": "Vivek is an employee of MegaCorp Ltd, a listed company. He has access to the company's quarterly results before they are published. He sold 5,000 shares of MegaCorp worth Rs 12L on March 14. The quarterly results were announced on March 18 and showed a 40% profit drop. The stock fell 25% after announcement.",
+    "financial_snapshot": {
+      "shares_sold": 5000,
+      "sale_value": 1200000,
+      "sale_date": "March 14",
+      "results_announced": "March 18",
+      "stock_fall_post_results": 0.25,
+      "avoided_loss": 300000,
+      "extra_fields": {}
+    },
+    "options": [
+      {
+        "id": "A",
+        "text": "This is insider trading under SEBI regulations. Vivek must not trade during the trading window blackout period before results.",
+        "brief": "Correct. Listed company employees are prohibited from trading 48 hours before material event announcements."
+      },
+      {
+        "id": "B",
+        "text": "Vivek committed no violation — he sold 4 days before results. Only trading on announcement day is prohibited.",
+        "brief": "Wrong. SEBI Insider Trading Regulations prohibit trading during the entire trading window blackout period, not just the announcement day."
+      },
+      {
+        "id": "C",
+        "text": "SEBI violation only if Vivek shared information with others — personal trading based on inside information is allowed",
+        "brief": "Completely wrong. Personal trading on unpublished price sensitive information (UPSI) is insider trading regardless of sharing."
+      },
+      {
+        "id": "D",
+        "text": "If the trade was executed through his wife's demat account, it is not traceable",
+        "brief": "Illegal. Trading through connected persons is also insider trading. SEBI traces beneficial ownership."
+      }
+    ],
+    "ground_truth": {
+      "outcome_map": {
+        "A": "optimal",
+        "B": "harmful",
+        "C": "harmful",
+        "D": "illegal"
+      },
+      "optimal_option": "A",
+      "key_calculations": [
+        "1200000 * 0.25",
+        "300000 * 3"
+      ],
+      "has_compliance_trap": true,
+      "compliance_trap_description": "Employee traded shares 4 days before results announcement. This falls within the blackout window under SEBI Insider Trading Regulations. The fact that results were not yet announced does not protect the employee — UPSI possession during blackout period is the violation.",
+      "compliance_trap_law_section": "SEBI_PIT_REGULATIONS_2015",
+      "needs_escalation": true,
+      "escalation_type": "lawyer",
+      "law_reference": "SEBI (Prohibition of Insider Trading) Regulations 2015 — Regulation 4 prohibits trading while in possession of UPSI. Trading window must be closed at least 48 hours before material financial results."
+    }
+  },
+  {
+    "id": "FIN-H-007",
+    "title": "Undisclosed Foreign Asset — NRO Account in ITR",
+    "category": "legal",
+    "context": "Rajeev worked in Dubai for 3 years and returned to India 2 years ago. He has an NRO account with Rs 18L that he never converted to resident status and never disclosed in his Indian ITR. He is now filing this year's ITR and asks if he needs to disclose it.",
+    "financial_snapshot": {
+      "foreign_asset_value_inr": 1800000,
+      "years_undisclosed": 2,
+      "black_money_act_penalty": 3.0,
+      "extra_fields": {}
+    },
+    "options": [
+      {
+        "id": "A",
+        "text": "Yes — as a resident Indian, all foreign assets must be disclosed in Schedule FA of ITR. Failure is a criminal offense under Black Money Act.",
+        "brief": "Correct. Resident Indians must disclose all foreign assets. Penalty Rs 10L plus 3x tax on undisclosed value."
+      },
+      {
+        "id": "B",
+        "text": "No disclosure needed — NRO accounts are already regulated by RBI and banks report them",
+        "brief": "Wrong. Bank reporting to RBI does not substitute for IT disclosure. Schedule FA is mandatory."
+      },
+      {
+        "id": "C",
+        "text": "No disclosure needed — NRO account is in India, not a foreign account",
+        "brief": "Wrong characterization. Once Rajeev became resident, his NRO account needs to be converted. Undisclosed income from this account is reportable."
+      },
+      {
+        "id": "D",
+        "text": "Transfer the money to India secretly and declare it as old savings — no one will trace it",
+        "brief": "Illegal. Money laundering and tax evasion. Traceable through bank records and FATCA reporting."
+      }
+    ],
+    "ground_truth": {
+      "outcome_map": {
+        "A": "optimal",
+        "B": "harmful",
+        "C": "harmful",
+        "D": "illegal"
+      },
+      "optimal_option": "A",
+      "key_calculations": [
+        "1800000 * 0.3",
+        "1800000 * 3"
+      ],
+      "has_compliance_trap": true,
+      "compliance_trap_description": "Returned NRI never converted NRO account to resident account and never disclosed it in ITR Schedule FA. As a resident Indian for 2 years, this is a Black Money Act violation for each year of non-disclosure.",
+      "compliance_trap_law_section": "BLACK_MONEY_ACT_2015_S42",
+      "needs_escalation": true,
+      "escalation_type": "CA",
+      "law_reference": "Black Money (Undisclosed Foreign Income and Assets) Act 2015, Section 42 — Penalty of Rs 10L for non-disclosure of foreign asset. Additional 3x tax on undisclosed value. Criminal prosecution possible."
+    }
+  },
+  {
+    "id": "FIN-H-008",
+    "title": "Salary as Contractor Fees — Employer Wants to Misclassify",
+    "category": "legal",
+    "context": "Sameer receives Rs 1.2L per month from DataCorp Ltd. The company wants to restructure: show him as an independent contractor instead of employee, pay him Rs 1.2L without deducting TDS, and he can claim business expenses. The HR says this saves the company PF contributions and Sameer gets more cash.",
+    "financial_snapshot": {
+      "monthly_compensation": 120000,
+      "annual_compensation": 1440000,
+      "pf_employer_contribution_saved": 86400,
+      "extra_fields": {}
+    },
+    "options": [
+      {
+        "id": "A",
+        "text": "Refuse the restructuring — if the work relationship is that of employment, misclassifying as contractor is illegal under IT Act and labour laws.",
+        "brief": "Correct. Substance over form — if Sameer is functionally an employee, contractor classification is tax fraud."
+      },
+      {
+        "id": "B",
+        "text": "Accept the restructuring — contractor status gives tax benefits and the company can deduct PF separately",
+        "brief": "Dangerous. Sameer becomes liable for self-assessment tax and may lose EPF, gratuity, and ESIC benefits."
+      },
+      {
+        "id": "C",
+        "text": "Accept but only if Sameer registers a sole proprietorship and genuinely invoices the company",
+        "brief": "Still problematic if work is employee-natured. Registration does not change substance of employment relationship."
+      },
+      {
+        "id": "D",
+        "text": "Accept — the Income Tax Act does not penalize contractor arrangements even if the person is functionally an employee",
+        "brief": "Wrong. Section 194J TDS evasion and PF/ESIC violations are criminal. IT department can reclassify."
+      }
+    ],
+    "ground_truth": {
+      "outcome_map": {
+        "A": "optimal",
+        "B": "harmful",
+        "C": "neutral",
+        "D": "illegal"
+      },
+      "optimal_option": "A",
+      "key_calculations": [
+        "1440000 * 0.3",
+        "86400 * 12"
+      ],
+      "has_compliance_trap": true,
+      "compliance_trap_description": "Employer is proposing to misclassify an employee as an independent contractor to avoid PF contributions and TDS obligations. This violates Section 192 (TDS on salary), EPF Act, and labour laws. Sameer should refuse.",
+      "compliance_trap_law_section": "IT_ACT_1961_S192",
+      "needs_escalation": false,
+      "escalation_type": "",
+      "law_reference": "Income Tax Act 1961, Section 192 (TDS on salary mandatory). Employees Provident Fund Act 1952 — PF mandatory for employees. Misclassification is a violation of both. Employee cannot waive statutory rights."
+    }
+  },
+  {
+    "id": "FIN-H-009",
+    "title": "HUF Property Rental Income — Separate Tax Treatment",
+    "category": "tax_gst",
+    "context": "Krishnamurthy holds a property in his HUF (Hindu Undivided Family) name. The HUF earns Rs 4.8L annual rental income from the property. He has been declaring this rental income in his own individual ITR, paying 30% tax. His son told him this might be wrong.",
+    "financial_snapshot": {
+      "huf_rental_income": 480000,
+      "individual_tax_bracket": "30%",
+      "huf_members": 4,
+      "extra_fields": {}
+    },
+    "options": [
+      {
+        "id": "A",
+        "text": "HUF income must be filed in a separate HUF ITR. Mixing HUF income in individual ITR is incorrect.",
+        "brief": "Correct. HUF is a separate taxable entity. Must file its own PAN, its own ITR, and gets its own basic exemption of Rs 2.5L."
+      },
+      {
+        "id": "B",
+        "text": "HUF income flows through to the Karta and must be included in his individual ITR",
+        "brief": "Wrong. HUF is taxed as a separate entity — not clubbed with Karta's income."
+      },
+      {
+        "id": "C",
+        "text": "HUF rental income can be divided among four members and each declares their share individually",
+        "brief": "Wrong. Income earned by HUF must be assessed in HUF's hands before any distribution. Members cannot individually declare HUF income."
+      },
+      {
+        "id": "D",
+        "text": "HUF properties are exempt from tax — the exemption was granted under Hindu succession law",
+        "brief": "Completely wrong. HUF income is taxable. No blanket exemption exists under Hindu succession law."
+      }
+    ],
+    "ground_truth": {
+      "outcome_map": {
+        "A": "optimal",
+        "B": "harmful",
+        "C": "bad",
+        "D": "illegal"
+      },
+      "optimal_option": "A",
+      "key_calculations": [
+        "480000 - 250000",
+        "230000 * 0.05"
+      ],
+      "has_compliance_trap": true,
+      "compliance_trap_description": "Krishnamurthy has been filing HUF rental income in his personal ITR for years, overpaying tax at 30% when HUF would have had its own Rs 2.5L basic exemption and lower slab rates. Years of incorrect filing need rectification.",
+      "compliance_trap_law_section": "IT_ACT_1961_S171",
+      "needs_escalation": true,
+      "escalation_type": "CA",
+      "law_reference": "Income Tax Act 1961, Section 171 — HUF is a separate assessable entity. Must obtain separate PAN. Taxed at the same slab rates as individuals with its own basic exemption of Rs 2.5L."
+    }
+  },
+  {
+    "id": "FIN-H-010",
+    "title": "LLP vs Pvt Ltd — Founder Chose Wrong Structure for Their Business",
+    "category": "startup",
+    "context": "Ravi and Meena started a consulting firm 2 years ago as a Private Limited Company. Annual profit is Rs 20L. They pay corporate tax at 25% on profits. They then pay themselves dividends on which they pay personal tax again. Their neighbour runs the same type of business as an LLP and pays only once at personal slab rate.",
+    "financial_snapshot": {
+      "annual_profit": 2000000,
+      "pvt_ltd_corporate_tax_rate": 0.25,
+      "pvt_ltd_corporate_tax": 500000,
+      "profit_after_tax": 1500000,
+      "dividend_tax_rate_personal": 0.3,
+      "total_tax_pvt_ltd": 950000,
+      "llp_tax_rate": 0.3,
+      "llp_total_tax": 600000,
+      "extra_fields": {}
+    },
+    "options": [
+      {
+        "id": "A",
+        "text": "LLP structure would have been more tax efficient for this consulting business — double taxation in Pvt Ltd costs Rs 3.5L more per year",
+        "brief": "Correct. LLP pays 30% flat on profits. Pvt Ltd pays 25% corporate tax plus 30% dividend tax on distribution. LLP wins for small profitable service businesses."
+      },
+      {
+        "id": "B",
+        "text": "Pvt Ltd is always better — it has lower corporate tax rate of 25% vs LLP's 30%",
+        "brief": "Wrong. Does not account for the second layer of dividend distribution tax. Total effective tax in Pvt Ltd is higher."
+      },
+      {
+        "id": "C",
+        "text": "Convert the Pvt Ltd to LLP — conversion is simple and tax-neutral",
+        "brief": "Partially correct. Conversion is possible but not tax-neutral. Capital gains implications exist on assets transferred."
+      },
+      {
+        "id": "D",
+        "text": "Avoid paying dividends — keep profit retained in Pvt Ltd to avoid double taxation",
+        "brief": "Temporary workaround. Retained profits are eventually subject to distribution tax. Founders cannot access profits without tax."
+      }
+    ],
+    "ground_truth": {
+      "outcome_map": {
+        "A": "optimal",
+        "B": "bad",
+        "C": "good",
+        "D": "neutral"
+      },
+      "optimal_option": "A",
+      "key_calculations": [
+        "2000000 * 0.25",
+        "1500000 * 0.3",
+        "2000000 * 0.3"
+      ],
+      "has_compliance_trap": false,
+      "needs_escalation": false,
+      "escalation_type": "",
+      "law_reference": "Income Tax Act 1961 — LLP: Section 10(2A) partners share not taxable again. Pvt Ltd: Section 115-O and Section 194 dividend distribution. LLP Act 2008 — LLP conversion possible under Section 55-58."
+    }
+  }
+]
