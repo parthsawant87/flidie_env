@@ -1,0 +1,52 @@
+# .github/workflows/keep_alive.yml
+# ─────────────────────────────────────────────────────────────────────────────
+# Pings the HF Space every 15 minutes to prevent sleeping.
+# Free HF Spaces sleep after 48 hours of inactivity → HTTP 503.
+# A 503 during judge evaluation = Phase 1 elimination.
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Keep FLIDIE Space Alive
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'   # Every 15 minutes, all day, every day
+  workflow_dispatch:          # Also allows manual trigger from GitHub Actions tab
+
+jobs:
+  ping:
+    name: Ping HF Space
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Ping /health
+        run: |
+          echo "Pinging ${{ secrets.HF_SPACE_URL }}/health"
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            --max-time 30 \
+            "${{ secrets.HF_SPACE_URL }}/health")
+          echo "Response: $HTTP_CODE"
+
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "Space is alive."
+          elif [ "$HTTP_CODE" = "503" ]; then
+            echo "Space is sleeping — sending wake-up request..."
+            curl -s -X POST "${{ secrets.HF_SPACE_URL }}/reset" \
+              -H "Content-Type: application/json" \
+              -d '{"task_id":"financial_optimize"}' \
+              --max-time 60 || true
+            echo "Wake-up request sent."
+          else
+            echo "Unexpected status $HTTP_CODE"
+            exit 1
+          fi
+
+      - name: Verify reset endpoint
+        run: |
+          CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST "${{ secrets.HF_SPACE_URL }}/reset" \
+            -H "Content-Type: application/json" \
+            -d '{"task_id":"financial_optimize"}' \
+            --max-time 45)
+          echo "/reset response: $CODE"
+          [ "$CODE" = "200" ] && echo "Reset OK." || echo "Reset failed — check Space logs."
