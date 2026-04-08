@@ -7,6 +7,8 @@ dependencies = [
     "fastapi==0.111.0",
     "uvicorn==0.29.0",
     "pydantic==2.7.1",
+    "openai==1.30.1",
+    "python-dotenv==1.0.1",
 ]
 
 [build-system]

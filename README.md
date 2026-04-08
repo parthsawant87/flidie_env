@@ -1,255 +1,147 @@
----
-title: Flidie Env Environment Server
-emoji: 🎺
-colorFrom: pink
-colorTo: pink
-sdk: docker
-pinned: false
-app_port: 8000
-base_path: /web
-tags:
-  - openenv
+# FLIDIE — Finance & Legal Decision Intelligence Environment
+
+An OpenEnv reinforcement learning environment for Indian financial and legal
+decision-making. AI agents face real scenarios drawn from Indian tax law,
+GST compliance, ESOP taxation, and startup structure decisions.
+
+**Live environment:** https://groot87-flidie-env.hf.space
+**OpenEnv tag:** [openenv](https://huggingface.co/spaces?filter=openenv)
+
 ---
 
-# Flidie Env Environment
+## Why FLIDIE
 
-A simple test environment that echoes back messages. Perfect for testing the env APIs as well as demonstrating environment usage patterns.
+300 million+ Indian taxpayers make tax optimization, GST compliance, and
+investment decisions every year. Indian personal finance AI is one of the
+most underdeveloped applications in the RL ecosystem. FLIDIE fills this gap.
 
-## Quick Start
+**The key differentiator:** Every reward score corresponds to a real legal
+consequence under Indian statute. A score of -1.0 means the agent recommended
+something for which the client could face criminal prosecution under Section
+276C of the Income Tax Act. The environment doesn't just reward correctness
+— it enforces the law.
 
-The simplest way to use the Flidie Env environment is through the `FlidieEnv` class:
+---
 
-```python
-from flidie_env import FlidieAction, FlidieEnv
+## Three Tasks
 
-try:
-    # Create environment from Docker image
-    flidie_envenv = FlidieEnv.from_docker_image("flidie_env-env:latest")
+| Task ID | Difficulty | Domain | Max Steps |
+|---|---|---|---|
+| `financial_optimize` | Easy | Tax / Investment | 6 |
+| `tax_planning` | Medium | Multi-step Tax | 10 |
+| `startup_compliance` | Hard | Legal + GST + SEBI | 10 |
 
-    # Reset
-    result = flidie_envenv.reset()
-    print(f"Reset: {result.observation.echoed_message}")
+### financial_optimize (Easy)
+Single-step financial decision. Agent sees a complete scenario (income,
+deductions, time pressure) and chooses from 4 options. Scored on which
+of 6 reward tiers the choice falls into. Optional calculate() actions
+earn a bonus of up to +0.10.
 
-    # Send multiple messages
-    messages = ["Hello, World!", "Testing echo", "Final message"]
+### tax_planning (Medium)
+Three-step tax planning scenario. Each step's outcome changes the running
+financial balance shown in subsequent observations. Agent should verify
+arithmetic with calculate() before committing. Weighted 40/35/25 across steps.
 
-    for msg in messages:
-        result = flidie_envenv.step(FlidieAction(message=msg))
-        print(f"Sent: '{msg}'")
-        print(f"  → Echoed: '{result.observation.echoed_message}'")
-        print(f"  → Length: {result.observation.message_length}")
-        print(f"  → Reward: {result.reward}")
+### startup_compliance (Hard)
+Startup founder believes they are compliant. A hidden legal violation may
+exist under CGST Act, IT Act, SEBI regulations, or FEMA. Agent is scored
+across four independent dimensions: decision correctness (40%), compliance
+trap detection (25%), professional escalation (20%), calculation quality (15%).
 
-finally:
-    # Always clean up
-    flidie_envenv.close()
-```
+---
 
-That's it! The `FlidieEnv.from_docker_image()` method handles:
-- Starting the Docker container
-- Waiting for the server to be ready
-- Connecting to the environment
-- Container cleanup when you call `close()`
+## Action Space
 
-## Building the Docker Image
+| Action | Fields | Effect |
+|---|---|---|
+| `choose_option` | `option_id: A\|B\|C\|D` | Terminal — ends episode, triggers grader |
+| `calculate` | `expression: str`, `expected_result: float` | Verifies arithmetic, updates observation |
+| `flag_compliance_risk` | `law_section: str`, `risk_description: str` | Identifies legal trap — bonus if correct |
+| `escalate_to_professional` | `professional_type: CA\|lawyer\|SEBI_advisor` | Recommends expert referral |
+| `ask_clarification` | `question_text: str` | Gathers information — small positive reward |
 
-Before using the environment, you need to build the Docker image:
+---
 
-```bash
-# From project root
-docker build -t flidie_env-env:latest -f server/Dockerfile .
-```
+## Reward Design — 6 Tiers
 
-## Deploying to Hugging Face Spaces
+| Tier | Score | Real-World Meaning |
+|---|---|---|
+| optimal | +1.00 | Best legal outcome. Maximum client benefit. |
+| good | +0.75 | Correct choice, minor suboptimality. |
+| neutral | +0.40 | Acceptable but leaves money on table. |
+| bad | +0.10 | Wrong choice, misunderstands tax structure. |
+| harmful | -0.40 | Creates penalty exposure for client. |
+| **illegal** | **-1.00** | **Violates Indian statute. Criminal liability.** |
 
-You can easily deploy your OpenEnv environment to Hugging Face Spaces using the `openenv push` command:
+---
 
-```bash
-# From the environment directory (where openenv.yaml is located)
-openenv push
+## Observation Space
 
-# Or specify options
-openenv push --namespace my-org --private
-```
+Each observation contains:
+- `scenario_id`, `title`, `category`: Scenario metadata
+- `context`: The financial situation in plain language
+- `financial_snapshot`: Structured financial data (income, deductions, etc.)
+- `options`: List of 4 choices (A/B/C/D) with descriptions
+- `calculations_done`: Accumulates as agent calls calculate()
+- `compliance_flags`: Accumulates as agent calls flag_compliance_risk()
+- `questions_asked`: Accumulates as agent calls ask_clarification()
+- `running_balance`: Changes between steps in multi-step scenarios
 
-The `openenv push` command will:
-1. Validate that the directory is an OpenEnv environment (checks for `openenv.yaml`)
-2. Prepare a custom build for Hugging Face Docker space (enables web interface)
-3. Upload to Hugging Face (ensuring you're logged in)
+Ground truth is **never included** in any observation. The Pydantic model
+enforces this structurally — ScenarioObservation has no ground_truth field.
 
-### Prerequisites
+---
 
-- Authenticate with Hugging Face: The command will prompt for login if not already authenticated
+## Baseline Scores (Qwen/Qwen2.5-72B-Instruct, 3 episodes each)
 
-### Options
+| Task | Difficulty | Avg Score |
+|---|---|---|
+| financial_optimize | Easy | X.XXXX |
+| tax_planning | Medium | X.XXXX |
+| startup_compliance | Hard | X.XXXX |
 
-- `--directory`, `-d`: Directory containing the OpenEnv environment (defaults to current directory)
-- `--repo-id`, `-r`: Repository ID in format 'username/repo-name' (defaults to 'username/env-name' from openenv.yaml)
-- `--base-image`, `-b`: Base Docker image to use (overrides Dockerfile FROM)
-- `--private`: Deploy the space as private (default: public)
+*Fill in after running: `python3 inference.py`*
 
-### Examples
+---
 
-```bash
-# Push to your personal namespace (defaults to username/env-name from openenv.yaml)
-openenv push
-
-# Push to a specific repository
-openenv push --repo-id my-org/my-env
-
-# Push with a custom base image
-openenv push --base-image ghcr.io/meta-pytorch/openenv-base:latest
-
-# Push as a private space
-openenv push --private
-
-# Combine options
-openenv push --repo-id my-org/my-env --base-image custom-base:latest --private
-```
-
-After deployment, your space will be available at:
-`https://huggingface.co/spaces/<repo-id>`
-
-The deployed space includes:
-- **Web Interface** at `/web` - Interactive UI for exploring the environment
-- **API Documentation** at `/docs` - Full OpenAPI/Swagger interface
-- **Health Check** at `/health` - Container health monitoring
-- **WebSocket** at `/ws` - Persistent session endpoint for low-latency interactions
-
-## Environment Details
-
-### Action
-**FlidieAction**: Contains a single field
-- `message` (str) - The message to echo back
-
-### Observation
-**FlidieObservation**: Contains the echo response and metadata
-- `echoed_message` (str) - The message echoed back
-- `message_length` (int) - Length of the message
-- `reward` (float) - Reward based on message length (length × 0.1)
-- `done` (bool) - Always False for echo environment
-- `metadata` (dict) - Additional info like step count
-
-### Reward
-The reward is calculated as: `message_length × 0.1`
-- "Hi" → reward: 0.2
-- "Hello, World!" → reward: 1.3
-- Empty message → reward: 0.0
-
-## Advanced Usage
-
-### Connecting to an Existing Server
-
-If you already have a Flidie Env environment server running, you can connect directly:
-
-```python
-from flidie_env import FlidieEnv
-
-# Connect to existing server
-flidie_envenv = FlidieEnv(base_url="<ENV_HTTP_URL_HERE>")
-
-# Use as normal
-result = flidie_envenv.reset()
-result = flidie_envenv.step(FlidieAction(message="Hello!"))
-```
-
-Note: When connecting to an existing server, `flidie_envenv.close()` will NOT stop the server.
-
-### Using the Context Manager
-
-The client supports context manager usage for automatic connection management:
-
-```python
-from flidie_env import FlidieAction, FlidieEnv
-
-# Connect with context manager (auto-connects and closes)
-with FlidieEnv(base_url="http://localhost:8000") as env:
-    result = env.reset()
-    print(f"Reset: {result.observation.echoed_message}")
-    # Multiple steps with low latency
-    for msg in ["Hello", "World", "!"]:
-        result = env.step(FlidieAction(message=msg))
-        print(f"Echoed: {result.observation.echoed_message}")
-```
-
-The client uses WebSocket connections for:
-- **Lower latency**: No HTTP connection overhead per request
-- **Persistent session**: Server maintains your environment state
-- **Efficient for episodes**: Better for many sequential steps
-
-### Concurrent WebSocket Sessions
-
-The server supports multiple concurrent WebSocket connections. To enable this,
-modify `server/app.py` to use factory mode:
-
-```python
-# In server/app.py - use factory mode for concurrent sessions
-app = create_app(
-    FlidieEnvironment,  # Pass class, not instance
-    FlidieAction,
-    FlidieObservation,
-    max_concurrent_envs=4,  # Allow 4 concurrent sessions
-)
-```
-
-Then multiple clients can connect simultaneously:
-
-```python
-from flidie_env import FlidieAction, FlidieEnv
-from concurrent.futures import ThreadPoolExecutor
-
-def run_episode(client_id: int):
-    with FlidieEnv(base_url="http://localhost:8000") as env:
-        result = env.reset()
-        for i in range(10):
-            result = env.step(FlidieAction(message=f"Client {client_id}, step {i}"))
-        return client_id, result.observation.message_length
-
-# Run 4 episodes concurrently
-with ThreadPoolExecutor(max_workers=4) as executor:
-    results = list(executor.map(run_episode, range(4)))
-```
-
-## Development & Testing
-
-### Direct Environment Testing
-
-Test the environment logic directly without starting the HTTP server:
+## Setup & Usage
 
 ```bash
-# From the server directory
-python3 server/flidie_env_environment.py
+# Clone and install
+git clone https://huggingface.co/spaces/YOUR_USERNAME/flidie-env
+cd flidie-env
+uv sync --extra dev
+
+# Set credentials
+cp .env.example .env
+# Edit .env — add your HF_TOKEN
+
+# Run tests
+python3 -m pytest test_graders.py -v
+
+# Start server
+uvicorn server.app:app --port 8000
+
+# Run baseline
+python3 inference.py
 ```
 
-This verifies that:
-- Environment resets correctly
-- Step executes actions properly
-- State tracking works
-- Rewards are calculated correctly
-
-### Running Locally
-
-Run the server locally for development:
+## Docker
 
 ```bash
-uvicorn server.app:app --reload
+docker build -t flidie-env .
+docker run --rm -p 8000:7860 flidie-env
+curl http://localhost:8000/health
 ```
 
-## Project Structure
+---
 
-```
-flidie_env/
-├── .dockerignore         # Docker build exclusions
-├── __init__.py            # Module exports
-├── README.md              # This file
-├── openenv.yaml           # OpenEnv manifest
-├── pyproject.toml         # Project metadata and dependencies
-├── uv.lock                # Locked dependencies (generated)
-├── client.py              # FlidieEnv client
-├── models.py              # Action and Observation models
-└── server/
-    ├── __init__.py        # Server module exports
-    ├── flidie_env_environment.py  # Core environment logic
-    ├── app.py             # FastAPI application (HTTP + WebSocket endpoints)
-    └── Dockerfile         # Container image definition
-```
+## Legal Sources
+
+All scenarios are grounded in Indian law:
+- Income Tax Act 1961 (Sections 80C, 80D, 276C, 17(2)(vi))
+- CGST Act 2017 (Sections 16, 17(5), 22, 122, 132)
+- SEBI Regulations (Insider Trading, Investment Advisers)
+- FEMA 2000 (Foreign Exchange Management)
+
+Ground truth cites the specific law section for every scenario.
