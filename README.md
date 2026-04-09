@@ -96,11 +96,10 @@ enforces this structurally — ScenarioObservation has no ground_truth field.
 
 | Task | Difficulty | Avg Score |
 |---|---|---|
-| financial_optimize | Easy | X.XXXX |
-| tax_planning | Medium | X.XXXX |
-| startup_compliance | Hard | X.XXXX |
+| financial_optimize | Easy | +1.0000 |
+| tax_planning | Medium | +0.5667 |
+| startup_compliance | Hard | +0.4000 |
 
-*Fill in after running: `python3 inference.py`*
 
 ---
 

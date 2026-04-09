@@ -42,8 +42,6 @@ ENV_URL      = os.getenv("ENV_URL",     "https://groot87-flidie-env.hf.space").r
 if not HF_TOKEN:
     raise ValueError(
         "HF_TOKEN is not set.\n"
-        "Add it to your .env file: HF_TOKEN=hf_your_token_here\n"
-        "Get a token at: huggingface.co → Settings → Access Tokens"
     )
 
 # OpenAI-compatible client pointed at HF Router
