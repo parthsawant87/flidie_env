@@ -33,10 +33,11 @@ load_dotenv()
 
 # ── CONFIGURATION ─────────────────────────────────────────────────────────────
 
-HF_TOKEN     = os.getenv("HF_TOKEN", "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")
+
+HF_TOKEN = os.environ.get("HF_TOKEN")
 API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME   = os.getenv("MODEL_NAME",  "Qwen/Qwen2.5-72B-Instruct")
-ENV_URL      = os.getenv("ENV_URL",     "http://localhost:8000").rstrip("/")
+ENV_URL      = os.getenv("ENV_URL",     "https://huggingface.co/spaces/groot87/flidie-env").rstrip("/")
 
 if not HF_TOKEN:
     raise ValueError(
@@ -242,40 +243,57 @@ def run_episode(task_id: str, episode_num: int) -> float:
     5. Else: repeat from step 2 with new observation
     6. Safety: stop after MAX_STEPS even if not done (returns -0.30 from env)
     """
-    print(f"\n  Episode {episode_num}: resetting {task_id}...")
+    # ── Required output: one [START] line at episode begin ──────────────────
+    print(f"[START] task={task_id} env=flidie model={MODEL_NAME}")
 
-    obs = env_reset(task_id)
-    print(f"  Scenario: {obs.get('title', 'unknown')[:60]}")
+    step_rewards = []   # collect per-step rewards for [END] line
+    final_reward  = -0.30
+    step          = 0
+    result        = {}
 
-    for step in range(1, MAX_STEPS + 1):
-        action = get_llm_action(obs, step, task_id)
-        if action is None:
-            action = {"action_type": "choose_option", "option_id": "A"}
+    try:
+        obs = env_reset(task_id)
 
-        action_type = action.get("action_type", "?")
-        print(f"  Step {step}: {action_type}", end="")
+        for step in range(1, MAX_STEPS + 1):
+            action      = get_llm_action(obs, step, task_id)
+            if action is None:
+                action  = {"action_type": "choose_option", "option_id": "A"}
 
-        try:
-            result = env_step(action)
-        except requests.HTTPError as e:
-            print(f" → HTTP {e.response.status_code}: {e.response.text[:100]}")
-            # Pydantic validation error — bad action shape. Fall back to choose_option.
-            fallback = {"action_type": "choose_option", "option_id": "A"}
-            result   = env_step(fallback)
+            action_type = action.get("action_type", "?")
 
-        reward = result.get("reward", 0.0)
-        done   = result.get("done",   False)
-        obs    = result.get("observation", obs)
+            try:
+                result  = env_step(action)
+            except requests.HTTPError as e:
+                # Pydantic validation error — bad action shape. Fall back to choose_option.
+                fallback = {"action_type": "choose_option", "option_id": "A"}
+                result   = env_step(fallback)
+                action_type = "choose_option"
 
-        if done:
-            print(f" → DONE. Reward: {reward:+.4f}")
-            return reward
-        else:
-            print(f" → reward: {reward:+.4f}")
+            reward  = result.get("reward", 0.0)
+            done    = result.get("done", False)
+            error   = result.get("last_action_error") or "null"
+            obs     = result.get("observation", obs)
 
-    # Reached MAX_STEPS without done — environment would have returned -0.30
-    print(f"  [timeout] Reached {MAX_STEPS} steps without choosing.")
-    return result.get("reward", -0.30)
+            step_rewards.append(reward)
+            final_reward = reward
+
+            # ── Required output: one [STEP] line per step ──────────────────
+            print(
+                f"[STEP] step={step} action={action_type} "
+                f"reward={reward:.2f} done={str(done).lower()} error={error}"
+            )
+
+            if done:
+                break
+
+    finally:
+        # ── Required output: one [END] line — always emitted even on exception
+        rewards_str = ",".join(f"{r:.2f}" for r in step_rewards)
+        success     = str(final_reward > 0).lower()
+        actual_steps = len(step_rewards)
+        print(f"[END] success={success} steps={actual_steps} rewards={rewards_str}")
+
+    return final_reward
 
 
 # ── MAIN ──────────────────────────────────────────────────────────────────────

@@ -21,6 +21,8 @@ WORKDIR /app
 # uv is significantly faster than pip for dependency resolution.
 RUN pip install --no-cache-dir uv
 
+
+
 # Copy dependency files FIRST (before source code).
 # Docker layer caching: if pyproject.toml and uv.lock don't change,
 # the expensive `uv sync` step is skipped on subsequent builds.
@@ -42,6 +44,8 @@ EXPOSE 7860
 # Add the uv-managed venv to PATH so uvicorn is found.
 # Without this, CMD would fail with "uvicorn: not found".
 ENV PATH="/app/.venv/bin:$PATH"
+
+ENV ENABLE_WEB_INTERFACE=true
 
 # Healthcheck: HF Spaces probes /health every 30s.
 # If this fails 3 times, the Space is marked unhealthy and restarts.

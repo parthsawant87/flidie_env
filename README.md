@@ -1,12 +1,12 @@
-# FLIDIE — Finance & Legal Decision Intelligence Environment
-
-An OpenEnv reinforcement learning environment for Indian financial and legal
-decision-making. AI agents face real scenarios drawn from Indian tax law,
-GST compliance, ESOP taxation, and startup structure decisions.
-
-**Live environment:** https://groot87-flidie-env.hf.space
-**OpenEnv tag:** [openenv](https://huggingface.co/spaces?filter=openenv)
-
+---
+title: FLIDIE Finance Legal Decision Intelligence Environment
+emoji: 💰
+colorFrom: indigo
+colorTo: yellow
+sdk: docker
+pinned: false
+tags:
+  - openenv
 ---
 
 ## Why FLIDIE

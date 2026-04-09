@@ -11,7 +11,7 @@ pydantic==2.7.1       # MUST be v2. Files 02-04 use .model_dump(), .model_valida
                       # Pydantic v1 will crash on these methods.
 
 # ── OpenEnv spec ─────────────────────────────────────────────────────────────
-openenv-core==0.1.0   # OpenEnv client + validator. Check latest before submission:
+openenv-core>=0.2.0  # OpenEnv client + validator. Check latest before submission:
                       #   pip index versions openenv-core
                       # If a newer version exists, update here AND in pyproject.toml.
 
