@@ -56,4 +56,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
 # host 0.0.0.0: listen on all interfaces (required for Docker networking).
 # workers 1: single worker is fine for evaluation — keeps memory low.
 # Do NOT use --reload in production (file watching uses extra CPU/memory).
-CMD ["uvicorn", "server.app:app", "--host", "0.0.0.0", "--port", "7860", "--workers", "1"]
+#CMD ["uvicorn", "server.app:app", "--host", "0.0.0.0", "--port", "7860", "--workers", "1"]
+CMD ["uvicorn", "server.app:app", "--host", "0.0.0.0", "--port", "7860"]

@@ -37,7 +37,7 @@ load_dotenv()
 HF_TOKEN = os.environ.get("HF_TOKEN")
 API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME   = os.getenv("MODEL_NAME",  "Qwen/Qwen2.5-72B-Instruct")
-ENV_URL      = os.getenv("ENV_URL",     "https://huggingface.co/spaces/groot87/flidie-env").rstrip("/")
+ENV_URL      = os.getenv("ENV_URL",     "https://groot87-flidie-env.hf.space").rstrip("/")
 
 if not HF_TOKEN:
     raise ValueError(
@@ -53,6 +53,7 @@ client = OpenAI(
     base_url   = API_BASE_URL,
     api_key    = HF_TOKEN,
 )
+_session_id: str | None = None
 
 TASK_IDS = [
     "financial_optimize",
@@ -109,12 +110,14 @@ You are scored on the quality of your final decision, your calculations, and you
 
 def env_reset(task_id: str) -> dict:
     """POST /reset → initial observation dict."""
+    global _session_id
     r = requests.post(
         f"{ENV_URL}/reset",
         json    = {"task_id": task_id},
         timeout = 30,
     )
     r.raise_for_status()
+    _session_id = r.headers.get("x-session-id") or r.headers.get("X-Session-ID")
     return r.json()
 
 
@@ -123,6 +126,7 @@ def env_step(action: dict) -> dict:
     r = requests.post(
         f"{ENV_URL}/step",
         json    = action,
+        headers = {"x-session-id": _session_id} if _session_id else {},
         timeout = 30,
     )
     r.raise_for_status()
