@@ -5,7 +5,7 @@
 #
 # GRADER CONTRACT (all three functions must obey):
 #   Input : List[FinancialAction], ground_truth dict, **kwargs
-#   Output: float in [−1.0, 1.0]
+#   Output: float in (0.0, 1.0)  ← strictly open; 0.0 and 1.0 are NOT valid
 #   Side effects: NONE. No mutations, no I/O, no randomness, no LLM calls.
 #   Determinism: same inputs → same output. Always. Without exception.
 #
@@ -15,6 +15,31 @@
 
 from typing import List, Dict, Any, Optional
 from models import FinancialAction, OutcomeTier, ProfessionalType
+
+
+# ── OUTPUT NORMALISATION ─────────────────────────────────────────────────────
+# Validator requires scores strictly inside (0, 1) — endpoints excluded.
+# All internal scoring still uses the natural [-1, 1] range for clarity;
+# _to_open_unit() is the single exit point that converts before returning.
+#
+# Mapping:  raw in [-1, 1]  ->  (0+eps, 1-eps)
+#   -1.0  ->  ~0.000001   (illegal advice, worst possible)
+#    0.0  ->   0.5        (neutral / no action)
+#   +1.0  ->  ~0.999999   (optimal advice, best possible)
+#
+# eps = 1e-6 keeps precision well within float64.
+
+_EPS = 1e-6
+
+
+def _to_open_unit(raw: float) -> float:
+    """
+    Normalise an internal [-1, 1] score to the open interval (0, 1).
+    This is the ONLY place a grader value should be finalised for output.
+    """
+    normalised = (raw + 1.0) / 2.0          # linear remap [-1,1] -> [0,1]
+    clamped    = max(_EPS, min(1.0 - _EPS, normalised))
+    return round(clamped, 6)
 
 
 # ── MASTER REWARD TABLE ──────────────────────────────────────────────────────
@@ -180,7 +205,7 @@ def grade_easy(
     key_calcs = ground_truth.get("key_calculations", [])
     calc_bonus = _calc_bonus(action_history, key_calcs, max_bonus=0.10)
 
-    return round(max(-1.0, min(1.0, base_score + calc_bonus)), 4)
+    return _to_open_unit(base_score + calc_bonus)
 
 
 # ── GRADE_MEDIUM ─────────────────────────────────────────────────────────────
@@ -263,7 +288,7 @@ def grade_medium(
     # Calculation bonus (max +0.20 for medium — bigger reward for doing the math)
     calc_bonus = _calc_bonus(action_history, key_calcs, max_bonus=0.20)
 
-    return round(max(-1.0, min(1.0, weighted_score + calc_bonus)), 4)
+    return _to_open_unit(weighted_score + calc_bonus)
 
 
 # ── GRADE_HARD ───────────────────────────────────────────────────────────────
@@ -387,4 +412,4 @@ def grade_hard(
         calc_bonus = _calc_bonus(action_history, key_calcs, max_bonus=1.0)
         score += HARD_WEIGHTS["calculation"] * calc_bonus
 
-    return round(max(-1.0, min(1.0, score)), 4)
+    return _to_open_unit(score)
