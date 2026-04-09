@@ -4,6 +4,7 @@
 # task ids here MUST exactly match TASK_REGISTRY keys in tasks.py.
 # ─────────────────────────────────────────────────────────────────────────────
 spec_version: 1
+name: flidie-env
 type: space
 runtime: docker
 port: 7860
