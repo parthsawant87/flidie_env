@@ -5,7 +5,7 @@
 #
 # GRADER CONTRACT (all three functions must obey):
 #   Input : List[FinancialAction], ground_truth dict, **kwargs
-#   Output: float in (0.0, 1.0)  ← strictly open; 0.0 and 1.0 are NOT valid
+#   Output: float in (0.0, 1)  ← strictly open; 0.0 and 1 are NOT valid
 #   Side effects: NONE. No mutations, no I/O, no randomness, no LLM calls.
 #   Determinism: same inputs → same output. Always. Without exception.
 #
@@ -23,9 +23,9 @@ from models import FinancialAction, OutcomeTier, ProfessionalType
 # _to_open_unit() is the single exit point that converts before returning.
 #
 # Mapping:  raw in [-1, 1]  ->  (0+eps, 1-eps)
-#   -1.0  ->  ~0.000001   (illegal advice, worst possible)
+#   -1  ->  ~0.000001   (illegal advice, worst possible)
 #    0.0  ->   0.5        (neutral / no action)
-#   +1.0  ->  ~0.999999   (optimal advice, best possible)
+#   +1  ->  ~0.999999   (optimal advice, best possible)
 #
 # eps = 1e-6 keeps precision well within float64.
 
@@ -38,32 +38,32 @@ def _to_open_unit(raw: float) -> float:
     This is the ONLY place a grader value should be finalised for output.
     MUST NOT be called anywhere except the final return of each grader.
     """
-    normalised = (raw + 1.0) / 2.0          # linear remap [-1,1] -> [0,1]
-    clamped    = max(_EPS, min(1.0 - _EPS, normalised))
+    normalised = (raw + 1) / 2.0          # linear remap [-1,1] -> [0,1]
+    clamped    = max(_EPS, min(1 - _EPS, normalised))
     return round(clamped, 4)
 
 
 # ── MASTER REWARD TABLE ──────────────────────────────────────────────────────
 # Single source of truth. Change here, changes everywhere.
-# Do NOT hardcode 1.0 or -0.40 anywhere in grader logic — always use TIER_REWARD.
+# Do NOT hardcode 1 or -0.40 anywhere in grader logic — always use TIER_REWARD.
 
 TIER_REWARD: Dict[str, float] = {
-    "optimal": 1.00,
+    "optimal": 1,
     "good":    0.75,
     "neutral": 0.40,
     "bad":     0.10,
     "harmful": -0.40,
-    "illegal": -1.00,
+    "illegal": -1,
 }
 
-# Step weights for medium grader (must sum to 1.0)
+# Step weights for medium grader (must sum to 1)
 MEDIUM_STEP_WEIGHTS = {1: 0.40, 2: 0.35, 3: 0.25}
 
 # Calculation tolerance — how close does expected_result need to be?
 # 1% tolerance handles floating-point rounding in GST/tax calculations.
 CALC_TOLERANCE = 0.01
 
-# Hard grader dimension weights (must sum to 1.0)
+# Hard grader dimension weights (must sum to 1)
 HARD_WEIGHTS = {
     "decision":    0.40,
     "trap":        0.25,
@@ -102,7 +102,7 @@ def _calc_bonus(
     _to_open_unit() must NOT be called here; this value is added to base_score first.
     """
     if not key_calculations:
-        return 0.0  # raw — no bonus available
+        return _to_open_unit(0.0)  # raw — no bonus available
 
     # Evaluate ground truth answers
     gt_results = []
@@ -112,7 +112,7 @@ def _calc_bonus(
             gt_results.append(val)
 
     if not gt_results:
-        return 0.0  # raw
+        return _to_open_unit(0.0)  # raw
 
     # Collect unique calculate() actions (deduplicate by expression)
     calc_actions = []
@@ -125,7 +125,7 @@ def _calc_bonus(
             seen_exprs.add(action.expression)
 
     if not calc_actions:
-        return 0.0  # raw
+        return _to_open_unit(0.0)  # raw
 
     # Count how many ground truth calculations were correctly verified
     matched = 0
@@ -223,7 +223,7 @@ def grade_medium(
             weighted_score  += step_score * weight
             total_weight_used += weight
 
-    if total_weight_used > 0 and total_weight_used < 1.0:
+    if total_weight_used > 0 and total_weight_used < 1:
         weighted_score = weighted_score / total_weight_used
 
     # raw float bonus
@@ -275,7 +275,7 @@ def grade_hard(
                 for a in flag_actions
                 if a.law_section
             )
-            trap_component = 1.0 if correctly_flagged else 0.0
+            trap_component = 1 if correctly_flagged else 0.0
         else:
             trap_component = -0.40  # false alarm
     else:
@@ -295,7 +295,7 @@ def grade_hard(
                 and a.professional_type.value.upper() == esc_type.upper()
                 for a in esc_actions
             )
-            escalation_component = 1.0 if correct_type_match else 0.15
+            escalation_component = 1 if correct_type_match else 0.15
         else:
             escalation_component = 0.0
     else:
@@ -305,7 +305,7 @@ def grade_hard(
 
     # ── DIMENSION 4: CALCULATION (weight 0.15, GATED) ────────────────────────
     if decision_raw >= HARD_CALC_GATE:
-        calc_bonus = _calc_bonus(action_history, key_calcs, max_bonus=1.0)
+        calc_bonus = _calc_bonus(action_history, key_calcs, max_bonus=1)
         score += HARD_WEIGHTS["calculation"] * calc_bonus
 
     return _to_open_unit(score)
