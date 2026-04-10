@@ -96,7 +96,7 @@ enforces this structurally — ScenarioObservation has no ground_truth field.
 
 | Task | Difficulty | Avg Score |
 |---|---|---|
-| financial_optimize | Easy | +1.0000 |
+| financial_optimize | Easy | +0.9950 |
 | tax_planning | Medium | +0.5667 |
 | startup_compliance | Hard | +0.4000 |
 
