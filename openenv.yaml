@@ -15,7 +15,6 @@ task_ids:
   - tax_planning
   - startup_compliance
 
-name: flidie-env
 version: "1.0.0"
 description: >
   Finance and Legal Decision Intelligence Environment for Indian financial
@@ -44,7 +43,7 @@ tasks:
       for an Indian taxpayer. Covers Section 80C investment choices, tax
       regime selection, and insurance vs. investment trade-offs.
     max_steps: 6
-    score_range: [-1.0, 1.0]
+    score_range: [0.0001, 0.9999]
 
   - id: tax_planning
     name: "Multi-Step Tax Planning"
@@ -55,7 +54,7 @@ tasks:
       Covers GST ITC eligibility, advance tax installments, and
       multi-year tax optimization strategies.
     max_steps: 10
-    score_range: [-1.0, 1.0]
+    score_range: [0.0001, 0.9999]
 
   - id: startup_compliance
     name: "Startup Compliance Audit"
@@ -67,7 +66,7 @@ tasks:
       professional escalation when needed. Scored across four dimensions:
       decision (40%), trap detection (25%), escalation (20%), calculation (15%).
     max_steps: 10
-    score_range: [-1.0, 1.0]
+    score_range: [0.0001, 0.9999]
 
 endpoints:
   reset: /reset
@@ -91,5 +90,5 @@ observation_space:
 
 reward:
   type: float
-  range: [-1.0, 1.0]
-  description: "Six-tier TIER_REWARD mapping. illegal=-1.00 is unique FLIDIE mechanic."
+  range: [0.0001, 0.9999]
+  description: "Scores strictly inside open interval (0,1). Normalised via _to_open_unit()."
