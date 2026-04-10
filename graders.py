@@ -102,7 +102,7 @@ def _calc_bonus(
     _to_open_unit() must NOT be called here; this value is added to base_score first.
     """
     if not key_calculations:
-        return _to_open_unit(0)  # raw — no bonus available
+        return 0.0  # raw — no bonus available
 
     # Evaluate ground truth answers
     gt_results = []
@@ -112,7 +112,7 @@ def _calc_bonus(
             gt_results.append(val)
 
     if not gt_results:
-        return _to_open_unit(0)  # raw
+        return 0.0  # raw
 
     # Collect unique calculate() actions (deduplicate by expression)
     calc_actions = []
@@ -125,7 +125,7 @@ def _calc_bonus(
             seen_exprs.add(action.expression)
 
     if not calc_actions:
-        return _to_open_unit(0)  # raw
+        return 0.0  # raw
 
     # Count how many ground truth calculations were correctly verified
     matched = 0
