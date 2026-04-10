@@ -66,12 +66,12 @@ trap detection (25%), professional escalation (20%), calculation quality (15%).
 
 | Tier | Score | Real-World Meaning |
 |---|---|---|
-| optimal | +1.00 | Best legal outcome. Maximum client benefit. |
+| optimal | +0.9950 | Best legal outcome. Maximum client benefit. |
 | good | +0.75 | Correct choice, minor suboptimality. |
 | neutral | +0.40 | Acceptable but leaves money on table. |
 | bad | +0.10 | Wrong choice, misunderstands tax structure. |
 | harmful | -0.40 | Creates penalty exposure for client. |
-| **illegal** | **-1.00** | **Violates Indian statute. Criminal liability.** |
+| **illegal** | **-0.9950** | **Violates Indian statute. Criminal liability.** |
 
 ---
 
