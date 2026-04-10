@@ -29,7 +29,7 @@ from models import FinancialAction, OutcomeTier, ProfessionalType
 #
 # eps = 1e-6 keeps precision well within float64.
 
-_EPS = 1e-6
+_EPS = 1e-4
 
 
 def _to_open_unit(raw: float) -> float:
@@ -40,7 +40,7 @@ def _to_open_unit(raw: float) -> float:
     """
     normalised = (raw + 1.0) / 2.0          # linear remap [-1,1] -> [0,1]
     clamped    = max(_EPS, min(1.0 - _EPS, normalised))
-    return round(clamped, 6)
+    return round(clamped, 4)
 
 
 # ── MASTER REWARD TABLE ──────────────────────────────────────────────────────
