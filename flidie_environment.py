@@ -44,7 +44,7 @@ class FlidieEnv:
 
     # Timeout penalty — stronger than clinical triage (-0.2) because
     # in finance, failing to advise leaves the client in the wrong state.
-    TIMEOUT_PENALTY: float = -0.30
+    TIMEOUT_PENALTY: float = 0.0001
 
     # Redundant action penalty — universal for all action types
     REDUNDANT_PENALTY: float = -0.05
@@ -230,7 +230,7 @@ class FlidieEnv:
 
         # Clamp reward to [-1.0, 1.0]. Pydantic also enforces this —
         # belt-and-suspenders safety net.
-        reward_clamped = max(-1.0, min(1.0, reward))
+        reward_clamped = max(0.0001, min(0.9999, reward)) if done else max(-0.9999, min(0.9999, reward))
 
         # Rebuild observation from current state.
         self._state["step_count"] = self._step_count
