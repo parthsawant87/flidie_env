@@ -1,22 +1,4 @@
 # FLIDIE Baseline Inference Script
-#
-# Usage:
-#   python3 inference.py              # uses ENV_URL from .env
-#   ENV_URL=http://localhost:8000 python3 inference.py  # override URL
-#
-# Credentials needed in .env:
-#   HF_TOKEN=hf_...                   # Hugging Face write token
-#   API_BASE_URL=https://router.huggingface.co/v1
-#   MODEL_NAME=Qwen/Qwen2.5-72B-Instruct
-#
-# What this does:
-#   1. Calls /reset to start an episode for each task
-#   2. Sends observation to Qwen-72B via HF Router (free, no paid API)
-#   3. Parses LLM JSON response into FinancialAction
-#   4. Calls /step with that action
-#   5. Repeats until done=True
-#   6. Prints final score per task
-#   7. Prints summary table — COPY THESE SCORES INTO README.md
 # ─────────────────────────────────────────────────────────────────────────────
 
 import os
@@ -282,7 +264,7 @@ def run_episode(task_id: str, episode_num: int) -> float:
             # ── Required output: one [STEP] line per step ──────────────────
             print(
                 f"[STEP] step={step} action={action_type} "
-                f"reward={reward:.2f} done={str(done).lower()} error={error}"
+                f"reward={reward:.4f} done={str(done).lower()} error={error}"
             )
 
             if done:
@@ -290,7 +272,7 @@ def run_episode(task_id: str, episode_num: int) -> float:
 
     finally:
         # ── Required output: one [END] line — always emitted even on exception
-        rewards_str = ",".join(f"{r:.2f}" for r in step_rewards)
+        rewards_str = ",".join(f"{r:.4f}" for r in step_rewards)
         success     = str(final_reward > 0).lower()
         actual_steps = len(step_rewards)
         print(f"[END] success={success} steps={actual_steps} rewards={rewards_str}")

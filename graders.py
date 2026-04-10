@@ -18,16 +18,7 @@ from models import FinancialAction, OutcomeTier, ProfessionalType
 
 
 # ── OUTPUT NORMALISATION ─────────────────────────────────────────────────────
-# Validator requires scores strictly inside (0, 1) — endpoints excluded.
-# All internal scoring still uses the natural [-1, 1] range for clarity;
-# _to_open_unit() is the single exit point that converts before returning.
-#
-# Mapping:  raw in [-1, 1]  ->  (0+eps, 1-eps)
-#   -1  ->  ~0.000001   (illegal advice, worst possible)
-#    0.0  ->   0.5        (neutral / no action)
-#   +1  ->  ~0.999999   (optimal advice, best possible)
-#
-# eps = 1e-6 keeps precision well within float64.
+
 
 _EPS = 1e-4
 
@@ -101,8 +92,11 @@ def _calc_bonus(
     Returns a raw float in [0, max_bonus] — NOT normalised.
     _to_open_unit() must NOT be called here; this value is added to base_score first.
     """
+    # BUG FIX: All early-return paths previously called _to_open_unit() and
+    # returned ~0.5 as a "raw" bonus — corrupting base_score when added.
+    # They must return 0.0 (no bonus) since there's nothing to reward.
     if not key_calculations:
-        return _to_open_unit(0.001)  # raw — no bonus available
+        return 0.0  # no bonus available
 
     # Evaluate ground truth answers
     gt_results = []
@@ -112,7 +106,7 @@ def _calc_bonus(
             gt_results.append(val)
 
     if not gt_results:
-        return _to_open_unit(0.001)  # raw
+        return 0.0  # no valid ground truth to match against
 
     # Collect unique calculate() actions (deduplicate by expression)
     calc_actions = []
@@ -125,7 +119,7 @@ def _calc_bonus(
             seen_exprs.add(action.expression)
 
     if not calc_actions:
-        return _to_open_unit(0.001)  # raw
+        return 0.0  # agent did no calculations — no bonus
 
     # Count how many ground truth calculations were correctly verified
     matched = 0
@@ -166,7 +160,7 @@ def grade_easy(
     if tier is None:
         return _to_open_unit(0.001)  # unknown option → neutral
 
-    base_score = TIER_REWARD.get(tier, 0.0)
+    base_score = TIER_REWARD.get(tier, 0.001)
 
     # Calculation quality bonus (max +0.10 for easy) — raw float
     key_calcs  = ground_truth.get("key_calculations", [])
@@ -219,7 +213,7 @@ def grade_medium(
         weight   = MEDIUM_STEP_WEIGHTS.get(step_num, 0.25)
 
         if tier is not None:
-            step_score       = TIER_REWARD.get(tier, 0.0)
+            step_score       = TIER_REWARD.get(tier, 0.001)
             weighted_score  += step_score * weight
             total_weight_used += weight
 
@@ -254,10 +248,10 @@ def grade_hard(
         (a for a in action_history if a.action_type == "choose_option"),
         None
     )
-    decision_raw = 0.0
+    decision_raw = 0.001
     if choose_action and choose_action.option_id:
         tier         = outcome_map.get(choose_action.option_id)
-        decision_raw = TIER_REWARD.get(tier, 0.0) if tier else 0.0
+        decision_raw = TIER_REWARD.get(tier, 0.001) if tier else 0.001
 
     score = HARD_WEIGHTS["decision"] * decision_raw
 
@@ -267,7 +261,7 @@ def grade_hard(
         if a.action_type == "flag_compliance_risk"
     ]
 
-    trap_component = 0.0
+    trap_component = 0.001
     if flag_actions:
         if has_trap:
             correctly_flagged = any(
@@ -275,11 +269,11 @@ def grade_hard(
                 for a in flag_actions
                 if a.law_section
             )
-            trap_component = 1 if correctly_flagged else 0.0
+            trap_component = 0.99 if correctly_flagged else 0.001
         else:
             trap_component = -0.40  # false alarm
     else:
-        trap_component = 0.0  # missed or correctly silent
+        trap_component = 0.001
 
     score += HARD_WEIGHTS["trap"] * trap_component
 
@@ -287,7 +281,7 @@ def grade_hard(
     esc_actions  = [a for a in action_history if a.action_type == "escalate_to_professional"]
     did_escalate = len(esc_actions) > 0
 
-    escalation_component = 0.0
+    escalation_component = 0.001
     if needs_esc:
         if did_escalate:
             correct_type_match = any(
@@ -295,11 +289,11 @@ def grade_hard(
                 and a.professional_type.value.upper() == esc_type.upper()
                 for a in esc_actions
             )
-            escalation_component = 1 if correct_type_match else 0.15
+            escalation_component = 0.99 if correct_type_match else 0.15
         else:
-            escalation_component = 0.0
+            escalation_component = 0.001
     else:
-        escalation_component = -0.40 if did_escalate else 0.0
+        escalation_component = -0.40 if did_escalate else 0.001
 
     score += HARD_WEIGHTS["escalation"] * escalation_component
 

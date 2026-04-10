@@ -21,7 +21,7 @@ from models  import (
     FinancialAction, ScenarioObservation, StepResult,
     FinancialSnapshot, FinancialOption, FinancialCategory
 )
-from graders import grade_easy, grade_medium, grade_hard
+from graders import grade_easy, grade_medium, grade_hard, _to_open_unit
 from tasks   import get_task, list_tasks, TaskConfig
 
 
@@ -194,7 +194,7 @@ class FlidieEnv:
 
         # Check termination conditions.
         done   = False
-        reward = 0.0
+        reward = 0.001
 
         if action.action_type == "choose_option":
             # For multi-step scenarios: only terminal on the LAST step.
@@ -207,7 +207,7 @@ class FlidieEnv:
             else:
                 # More steps remain in multi-step scenario.
                 # Advance to next step's prompt and give small intermediate reward.
-                reward = 0.0  # Neutral for advancing — graded at end
+                reward = 0.001  # Neutral for advancing — graded at end
                 self._advance_step()
 
         elif self._step_count >= self._current_task.max_steps:
@@ -228,9 +228,14 @@ class FlidieEnv:
             self._done          = True
             self._state["done"] = True
 
-        # Clamp reward to [-1.0, 1.0]. Pydantic also enforces this —
-        # belt-and-suspenders safety net.
-        reward_clamped = max(0.0001, min(0.9999, reward)) if done else max(-0.9999, min(0.9999, reward))
+        # Ensure reward is strictly inside (0, 1) for every step.
+        # Final rewards from graders already went through _to_open_unit().
+        # Intermediate rewards are raw [-1, 1] nudges — normalise them too.
+        _EPS = 1e-4
+        if done:
+            reward_clamped = max(_EPS, min(1 - _EPS, reward))
+        else:
+            reward_clamped = _to_open_unit(reward)
 
         # Rebuild observation from current state.
         self._state["step_count"] = self._step_count
@@ -335,7 +340,7 @@ class FlidieEnv:
 
         if action.action_type == "calculate":
             if not action.expression:
-                return 0.0
+                return 0.001
             # Check if same expression was already submitted (redundant calculate)
             prev_exprs = [
                 a.expression for a in self._action_history[:-1]
@@ -353,7 +358,7 @@ class FlidieEnv:
                 tolerance = abs(action.expected_result) * 0.01 if action.expected_result != 0 else 0.01
                 if abs(result - action.expected_result) <= tolerance:
                     return +0.05  # Correct arithmetic
-            return 0.0  # Evaluated but result doesn't match expected
+            return 0.001  # Evaluated but result doesn't match expected
 
         elif action.action_type == "flag_compliance_risk":
             has_trap    = gt.get("has_compliance_trap", False)
@@ -361,7 +366,7 @@ class FlidieEnv:
             if has_trap and action.law_section == trap_section:
                 return +0.10  # Correct flag — exact section match
             elif has_trap and action.law_section != trap_section:
-                return  0.00  # Tried but wrong section — no credit, no penalty
+                return  0.001  # Tried but wrong section — no credit, no penalty
             else:
                 return -0.10  # False alarm — no trap in this scenario
 
@@ -379,7 +384,7 @@ class FlidieEnv:
             if action.question_text and len(action.question_text) > 10:
                 return +0.02  # Gathering information — marginally positive
 
-        return 0.0
+        return 0.001
 
     # ── FINAL REWARD DISPATCHER ──────────────────────────────────────────────
 
