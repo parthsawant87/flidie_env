@@ -102,7 +102,7 @@ def _calc_bonus(
     _to_open_unit() must NOT be called here; this value is added to base_score first.
     """
     if not key_calculations:
-        return _to_open_unit(0.0)  # raw — no bonus available
+        return _to_open_unit(0)  # raw — no bonus available
 
     # Evaluate ground truth answers
     gt_results = []
@@ -112,7 +112,7 @@ def _calc_bonus(
             gt_results.append(val)
 
     if not gt_results:
-        return _to_open_unit(0.0)  # raw
+        return _to_open_unit(0)  # raw
 
     # Collect unique calculate() actions (deduplicate by expression)
     calc_actions = []
@@ -125,7 +125,7 @@ def _calc_bonus(
             seen_exprs.add(action.expression)
 
     if not calc_actions:
-        return _to_open_unit(0.0)  # raw
+        return _to_open_unit(0)  # raw
 
     # Count how many ground truth calculations were correctly verified
     matched = 0
@@ -158,13 +158,13 @@ def grade_easy(
     )
 
     if choose_action is None or choose_action.option_id is None:
-        return _to_open_unit(0.0)  # no action → neutral
+        return _to_open_unit(0)  # no action → neutral
 
     outcome_map = ground_truth.get("outcome_map", {})
     tier = outcome_map.get(choose_action.option_id)
 
     if tier is None:
-        return _to_open_unit(0.0)  # unknown option → neutral
+        return _to_open_unit(0)  # unknown option → neutral
 
     base_score = TIER_REWARD.get(tier, 0.0)
 
@@ -195,7 +195,7 @@ def grade_medium(
     ]
 
     if not choose_actions:
-        return _to_open_unit(0.0)  # no action → neutral
+        return _to_open_unit(0)  # no action → neutral
 
     if step_log:
         step_decisions = {
