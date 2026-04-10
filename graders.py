@@ -48,12 +48,12 @@ def _to_open_unit(raw: float) -> float:
 # Do NOT hardcode 1 or -0.40 anywhere in grader logic — always use TIER_REWARD.
 
 TIER_REWARD: Dict[str, float] = {
-    "optimal": 1,
+    "optimal": 0.99,
     "good":    0.75,
     "neutral": 0.40,
     "bad":     0.10,
     "harmful": -0.40,
-    "illegal": -1,
+    "illegal": -0.99,
 }
 
 # Step weights for medium grader (must sum to 1)
@@ -102,7 +102,7 @@ def _calc_bonus(
     _to_open_unit() must NOT be called here; this value is added to base_score first.
     """
     if not key_calculations:
-        return 0.0  # raw — no bonus available
+        return _to_open_unit(0.001)  # raw — no bonus available
 
     # Evaluate ground truth answers
     gt_results = []
@@ -112,7 +112,7 @@ def _calc_bonus(
             gt_results.append(val)
 
     if not gt_results:
-        return 0.0  # raw
+        return _to_open_unit(0.001)  # raw
 
     # Collect unique calculate() actions (deduplicate by expression)
     calc_actions = []
@@ -125,7 +125,7 @@ def _calc_bonus(
             seen_exprs.add(action.expression)
 
     if not calc_actions:
-        return 0.0  # raw
+        return _to_open_unit(0.001)  # raw
 
     # Count how many ground truth calculations were correctly verified
     matched = 0
@@ -158,13 +158,13 @@ def grade_easy(
     )
 
     if choose_action is None or choose_action.option_id is None:
-        return _to_open_unit(0)  # no action → neutral
+        return _to_open_unit(0.001)  # no action → neutral
 
     outcome_map = ground_truth.get("outcome_map", {})
     tier = outcome_map.get(choose_action.option_id)
 
     if tier is None:
-        return _to_open_unit(0)  # unknown option → neutral
+        return _to_open_unit(0.001)  # unknown option → neutral
 
     base_score = TIER_REWARD.get(tier, 0.0)
 
@@ -195,7 +195,7 @@ def grade_medium(
     ]
 
     if not choose_actions:
-        return _to_open_unit(0)  # no action → neutral
+        return _to_open_unit(0.001)  # no action → neutral
 
     if step_log:
         step_decisions = {
