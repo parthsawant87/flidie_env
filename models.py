@@ -195,7 +195,7 @@ class ScenarioObservation(BaseModel):
 class StepResult(BaseModel):
     """Returned by /step endpoint after every agent action."""
     observation: ScenarioObservation
-    reward:      float          = Field(ge=-1.0, le=1.0)
+    reward:      float          = Field(gt=0.0, lt=1.0)
     done:        bool
     info:        Dict[str, Any] = Field(default_factory=dict)
     # info includes: step, task_id, action_taken, is_redundant, scenario_id
