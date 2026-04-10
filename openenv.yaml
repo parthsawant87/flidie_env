@@ -1,8 +1,4 @@
 # openenv.yaml — FLIDIE OpenEnv Submission
-# ─────────────────────────────────────────────────────────────────────────────
-# This file is the first thing openenv validate reads.
-# task ids here MUST exactly match TASK_REGISTRY keys in tasks.py.
-# ─────────────────────────────────────────────────────────────────────────────
 spec_version: 1
 name: flidie-env
 type: space
@@ -10,19 +6,11 @@ runtime: docker
 port: 7860
 app: server.app:app
 
-task_ids:
-  - financial_optimize
-  - tax_planning
-  - startup_compliance
-
 version: "1.0.0"
 description: >
   Finance and Legal Decision Intelligence Environment for Indian financial
   scenarios. AI agents navigate tax optimization, GST compliance, ESOP
-  taxation, and startup legal decisions. Ground truth sourced from Income
-  Tax Act 1961, CGST Act 2017, SEBI regulations, and FEMA 2000.
-  Unique mechanic: six reward tiers including -1.00 for illegal advice
-  that violates Indian statute.
+  taxation, and startup legal decisions.
 
 author: groot87
 
@@ -34,14 +22,18 @@ tags:
   - tax
   - compliance
 
+task_ids:
+  - financial_optimize
+  - tax_planning
+  - startup_compliance
+
 tasks:
   - id: financial_optimize
     name: "Financial Decision Optimization"
     difficulty: easy
     description: >
       Single-step decision: choose the optimal financial action (A/B/C/D)
-      for an Indian taxpayer. Covers Section 80C investment choices, tax
-      regime selection, and insurance vs. investment trade-offs.
+      for an Indian taxpayer.
     max_steps: 6
     score_range: [0.0001, 0.9999]
 
@@ -50,9 +42,6 @@ tasks:
     difficulty: medium
     description: >
       Three-step scenario where each decision changes the financial state.
-      Agent must verify arithmetic via calculate() before deciding.
-      Covers GST ITC eligibility, advance tax installments, and
-      multi-year tax optimization strategies.
     max_steps: 10
     score_range: [0.0001, 0.9999]
 
@@ -60,11 +49,7 @@ tasks:
     name: "Startup Compliance Audit"
     difficulty: hard
     description: >
-      Startup founder believes they are compliant. A hidden violation
-      may exist under CGST Act, IT Act, SEBI, or FEMA. Agent must
-      identify the compliance trap, advise correctly, and recommend
-      professional escalation when needed. Scored across four dimensions:
-      decision (40%), trap detection (25%), escalation (20%), calculation (15%).
+      Startup compliance audit across four dimensions.
     max_steps: 10
     score_range: [0.0001, 0.9999]
 
@@ -91,4 +76,4 @@ observation_space:
 reward:
   type: float
   range: [0.0001, 0.9999]
-  description: "Scores strictly inside open interval (0,1). Normalised via _to_open_unit()."
+  description: "All rewards strictly inside open interval (0, 1)."
