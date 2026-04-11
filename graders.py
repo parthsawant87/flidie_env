@@ -16,7 +16,7 @@ from models import FinancialAction, OutcomeTier, ProfessionalType
 
 # ── OUTPUT NORMALISATION ─────────────────────────────────────────────────────
 
-_EPS = 0.01
+_EPS = 0.02
 
 
 def _to_open_unit(raw: float = 0.0) -> float:
@@ -28,12 +28,12 @@ def _to_open_unit(raw: float = 0.0) -> float:
 # ── MASTER REWARD TABLE ──────────────────────────────────────────────────────
 
 TIER_REWARD: Dict[str, float] = {
-    "optimal": 0.99,
+    "optimal": 0.95,
     "good":    0.75,
     "neutral": 0.40,
     "bad":     0.10,
     "harmful": -0.40,
-    "illegal": -0.99,
+    "illegal": -0.95,
 }
 
 MEDIUM_STEP_WEIGHTS = {1: 0.40, 2: 0.35, 3: 0.25}
