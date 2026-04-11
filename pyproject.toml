@@ -20,7 +20,7 @@ build-backend = "hatchling.build"
 server = "server.app:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["server", "graders.py", "models.py", "tasks.py", "flidie_environment.py"]
+packages = ["server"]
 
 [tool.hatch.build]
 include = [

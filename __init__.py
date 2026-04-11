@@ -1,1 +1,0 @@
-# FLIDIE environment
