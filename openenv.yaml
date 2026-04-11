@@ -1,5 +1,5 @@
 # openenv.yaml — FLIDIE OpenEnv Submission
-spec_version: 1
+spec_version: 1.0
 name: flidie-env
 type: space
 runtime: docker
@@ -36,6 +36,7 @@ tasks:
       for an Indian taxpayer.
     max_steps: 6
     score_range: [0.1, 0.99]
+    grader: graders.grade_easy
 
   - id: tax_planning
     name: "Multi-Step Tax Planning"
@@ -44,6 +45,7 @@ tasks:
       Three-step scenario where each decision changes the financial state.
     max_steps: 10
     score_range: [0.1, 0.99]
+    grader: graders.grade_medium
 
   - id: startup_compliance
     name: "Startup Compliance Audit"
@@ -52,6 +54,7 @@ tasks:
       Startup compliance audit across four dimensions.
     max_steps: 10
     score_range: [0.1, 0.99]
+    grader: graders.grade_hard
 
 endpoints:
   reset: /reset
