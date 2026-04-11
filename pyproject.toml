@@ -1,6 +1,6 @@
 [project]
 name = "flidie-env"
-version = "1.0.1"
+version = "1.0.2"
 description = "Finance & Legal Decision Intelligence Environment"
 requires-python = ">=3.10"
 dependencies = [
@@ -13,16 +13,24 @@ dependencies = [
 ]
 
 [build-system]
-requires = ["setuptools>=45", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project.scripts]
 server = "server.app:main"
 
-[tool.setuptools]
-include-package-data = true
-packages = ["flidie_env", "flidie_env.server"]
-package-dir = { "" = ".", "flidie_env" = ".", "flidie_env.server" = "server" }
+[tool.hatch.build.targets.wheel]
+packages = ["server"]
+
+[tool.hatch.build]
+include = [
+    "server/**",
+    "graders.py",
+    "models.py",
+    "tasks.py",
+    "flidie_environment.py",
+    "data/**",
+]
 
 [tool.uv]
 dev-dependencies = [
