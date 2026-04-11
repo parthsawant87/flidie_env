@@ -11,7 +11,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 
 from typing import List, Dict, Any, Optional
-from server.models import FinancialAction, OutcomeTier, ProfessionalType
+from models import FinancialAction, OutcomeTier, ProfessionalType
 
 
 # ── OUTPUT NORMALISATION ─────────────────────────────────────────────────────

@@ -17,7 +17,7 @@ import random
 from pathlib import Path
 from typing  import List, Optional, Dict, Any
 
-from server.models  import (
+from models import (
     FinancialAction, ScenarioObservation, StepResult,
     FinancialSnapshot, FinancialOption, FinancialCategory
 )

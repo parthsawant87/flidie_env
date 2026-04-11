@@ -7,7 +7,7 @@
 
 from dataclasses import dataclass
 from typing import List, Dict
-from server.models      import TaskInfo
+from models import TaskInfo
 
 
 @dataclass
