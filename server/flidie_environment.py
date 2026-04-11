@@ -71,7 +71,7 @@ class FlidieEnv:
         Prevents re-reading JSON on every reset() during batch evaluation.
         """
         if filename not in self._data_cache:
-            data_path = Path(__file__).parent / filename
+            data_path = Path(__file__).parent.parent / filename
             if not data_path.exists():
                 raise FileNotFoundError(
                     f"Scenario file not found: {data_path}\n"
