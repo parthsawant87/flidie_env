@@ -5,12 +5,9 @@
 #
 # GRADER CONTRACT (all three functions must obey):
 #   Input : List[FinancialAction], ground_truth dict, **kwargs
-#   Output: float in (0.0, 1)  ← strictly open; 0.0 and 1 are NOT valid
+#   Output: float in (0.1, 0.99) inclusive
 #   Side effects: NONE. No mutations, no I/O, no randomness, no LLM calls.
 #   Determinism: same inputs → same output. Always. Without exception.
-#
-# These are pure functions. They can be tested in complete isolation from the
-# environment, the server, and the inference script. This is intentional.
 # ─────────────────────────────────────────────────────────────────────────────
 
 from typing import List, Dict, Any, Optional
@@ -19,24 +16,16 @@ from models import FinancialAction, OutcomeTier, ProfessionalType
 
 # ── OUTPUT NORMALISATION ─────────────────────────────────────────────────────
 
-
 _EPS = 0.1
 
 
-def _to_open_unit(raw: float) -> float:
-    """
-    Normalise an internal [-1, 1] score to the open interval (0, 1).
-    This is the ONLY place a grader value should be finalised for output.
-    MUST NOT be called anywhere except the final return of each grader.
-    """
-    normalised = (raw + 1) / 2.0          # linear remap [-1,1] -> [0,1]
+def _to_open_unit(raw: float = 0.0) -> float:
+    normalised = (raw + 1) / 2.0
     clamped    = max(_EPS, min(1 - _EPS, normalised))
     return round(clamped, 4)
 
 
 # ── MASTER REWARD TABLE ──────────────────────────────────────────────────────
-# Single source of truth. Change here, changes everywhere.
-# Do NOT hardcode 1 or -0.40 anywhere in grader logic — always use TIER_REWARD.
 
 TIER_REWARD: Dict[str, float] = {
     "optimal": 0.99,
@@ -47,14 +36,9 @@ TIER_REWARD: Dict[str, float] = {
     "illegal": -0.99,
 }
 
-# Step weights for medium grader (must sum to 1)
 MEDIUM_STEP_WEIGHTS = {1: 0.40, 2: 0.35, 3: 0.25}
-
-# Calculation tolerance — how close does expected_result need to be?
-# 1% tolerance handles floating-point rounding in GST/tax calculations.
 CALC_TOLERANCE = 0.01
 
-# Hard grader dimension weights (must sum to 1)
 HARD_WEIGHTS = {
     "decision":    0.40,
     "trap":        0.25,
@@ -62,19 +46,12 @@ HARD_WEIGHTS = {
     "calculation": 0.15,
 }
 
-# Gate threshold: hard calculation bonus only applies if decision_raw >= this
-# 0.12 = 0.40 (decision weight) × 0.30 (equivalent to "bad" tier partially)
-# Effectively: if you gave illegal advice, you get no calculation bonus.
 HARD_CALC_GATE = 0.12
 
 
-# ── HELPER: Safe eval for calculate() actions ────────────────────────────────
+# ── HELPERS ──────────────────────────────────────────────────────────────────
 
-def _safe_eval(expression: str, expected: Optional[float]) -> Optional[float]:
-    """
-    Evaluate an arithmetic expression in a sandboxed namespace.
-    Returns the numeric result if valid, None if expression fails.
-    """
+def _safe_eval(expression: str, expected: Optional[float] = None) -> Optional[float]:
     try:
         result = eval(expression, {"__builtins__": {}}, {})
         return float(result)
@@ -83,32 +60,25 @@ def _safe_eval(expression: str, expected: Optional[float]) -> Optional[float]:
 
 
 def _calc_bonus(
-    action_history: List[FinancialAction],
-    key_calculations: List[str],
+    action_history: List[FinancialAction] = None,
+    key_calculations: List[str] = None,
     max_bonus: float = 0.10,
 ) -> float:
-    """
-    Score all calculate() actions against key_calculations from ground_truth.
-    Returns a raw float in [0, max_bonus] — NOT normalised.
-    _to_open_unit() must NOT be called here; this value is added to base_score first.
-    """
-    # BUG FIX: All early-return paths previously called _to_open_unit() and
-    # returned ~0.5 as a "raw" bonus — corrupting base_score when added.
-    # They must return 0.0 (no bonus) since there's nothing to reward.
-    if not key_calculations:
-        return 0.0  # no bonus available
+    action_history   = action_history   or []
+    key_calculations = key_calculations or []
 
-    # Evaluate ground truth answers
+    if not key_calculations:
+        return 0.0
+
     gt_results = []
     for expr in key_calculations:
-        val = _safe_eval(expr, None)
+        val = _safe_eval(expr)
         if val is not None:
             gt_results.append(val)
 
     if not gt_results:
-        return 0.0  # no valid ground truth to match against
+        return 0.0
 
-    # Collect unique calculate() actions (deduplicate by expression)
     calc_actions = []
     seen_exprs = set()
     for action in action_history:
@@ -119,9 +89,8 @@ def _calc_bonus(
             seen_exprs.add(action.expression)
 
     if not calc_actions:
-        return 0.0  # agent did no calculations — no bonus
+        return 0.0
 
-    # Count how many ground truth calculations were correctly verified
     matched = 0
     for gt_val in gt_results:
         for action in calc_actions:
@@ -130,39 +99,37 @@ def _calc_bonus(
                 tolerance = abs(gt_val) * CALC_TOLERANCE if gt_val != 0 else 0.01
                 if abs(agent_val - gt_val) <= tolerance:
                     matched += 1
-                    break  # Each ground truth calc matched at most once
+                    break
 
     fraction = matched / len(gt_results)
-    return round(fraction * max_bonus, 4)  # raw [0, max_bonus]
+    return round(fraction * max_bonus, 4)
 
 
 # ── GRADE_EASY ───────────────────────────────────────────────────────────────
 
 def grade_easy(
-    action_history: List[FinancialAction],
-    ground_truth:   Dict[str, Any],
+    action_history: List[FinancialAction] = None,
+    ground_truth:   Dict[str, Any]        = None,
+    **kwargs,
 ) -> float:
-    """
-    Grade a single-step financial decision scenario.
-    Returns float in open interval (0, 1).
-    """
+    action_history = action_history or []
+    ground_truth   = ground_truth   or {}
+
     choose_action = next(
         (a for a in action_history if a.action_type == "choose_option"),
         None
     )
 
     if choose_action is None or choose_action.option_id is None:
-        return _to_open_unit(0.1)  # no action → neutral
+        return _to_open_unit(0.1)
 
     outcome_map = ground_truth.get("outcome_map", {})
-    tier = outcome_map.get(choose_action.option_id)
+    tier        = outcome_map.get(choose_action.option_id)
 
     if tier is None:
-        return _to_open_unit(0.1)  # unknown option → neutral
+        return _to_open_unit(0.1)
 
     base_score = TIER_REWARD.get(tier, 0.1)
-
-    # Calculation quality bonus (max +0.10 for easy) — raw float
     key_calcs  = ground_truth.get("key_calculations", [])
     calc_bonus = _calc_bonus(action_history, key_calcs, max_bonus=0.10)
 
@@ -172,14 +139,14 @@ def grade_easy(
 # ── GRADE_MEDIUM ─────────────────────────────────────────────────────────────
 
 def grade_medium(
-    action_history: List[FinancialAction],
-    ground_truth:   Dict[str, Any],
+    action_history: List[FinancialAction]        = None,
+    ground_truth:   Dict[str, Any]               = None,
     step_log:       Optional[List[Dict[str, Any]]] = None,
+    **kwargs,
 ) -> float:
-    """
-    Grade a multi-step tax planning scenario.
-    Returns float in open interval (0, 1).
-    """
+    action_history = action_history or []
+    ground_truth   = ground_truth   or {}
+
     step_outcome_map = ground_truth.get("step_outcome_map", {})
     key_calcs        = ground_truth.get("key_calculations", [])
 
@@ -189,7 +156,7 @@ def grade_medium(
     ]
 
     if not choose_actions:
-        return _to_open_unit(0.1)  # no action → neutral
+        return _to_open_unit(0.1)
 
     if step_log:
         step_decisions = {
@@ -213,14 +180,13 @@ def grade_medium(
         weight   = MEDIUM_STEP_WEIGHTS.get(step_num, 0.25)
 
         if tier is not None:
-            step_score       = TIER_REWARD.get(tier, 0.1)
-            weighted_score  += step_score * weight
+            step_score        = TIER_REWARD.get(tier, 0.1)
+            weighted_score   += step_score * weight
             total_weight_used += weight
 
     if total_weight_used > 0 and total_weight_used < 1:
         weighted_score = weighted_score / total_weight_used
 
-    # raw float bonus
     calc_bonus = _calc_bonus(action_history, key_calcs, max_bonus=0.20)
 
     return _to_open_unit(weighted_score + calc_bonus)
@@ -229,21 +195,20 @@ def grade_medium(
 # ── GRADE_HARD ───────────────────────────────────────────────────────────────
 
 def grade_hard(
-    action_history: List[FinancialAction],
-    ground_truth:   Dict[str, Any],
+    action_history: List[FinancialAction] = None,
+    ground_truth:   Dict[str, Any]        = None,
+    **kwargs,
 ) -> float:
-    """
-    Grade a startup compliance audit scenario across 4 dimensions.
-    Returns float in open interval (0, 1).
-    """
+    action_history = action_history or []
+    ground_truth   = ground_truth   or {}
+
     outcome_map  = ground_truth.get("outcome_map",                {})
     key_calcs    = ground_truth.get("key_calculations",            [])
     has_trap     = ground_truth.get("has_compliance_trap",         False)
     trap_section = ground_truth.get("compliance_trap_law_section", "")
-    needs_esc    = ground_truth.get("needs_escalation",             False)
-    esc_type     = ground_truth.get("escalation_type",              "")
+    needs_esc    = ground_truth.get("needs_escalation",            False)
+    esc_type     = ground_truth.get("escalation_type",             "")
 
-    # ── DIMENSION 1: DECISION (weight 0.40) ──────────────────────────────────
     choose_action = next(
         (a for a in action_history if a.action_type == "choose_option"),
         None
@@ -255,7 +220,6 @@ def grade_hard(
 
     score = HARD_WEIGHTS["decision"] * decision_raw
 
-    # ── DIMENSION 2: TRAP DETECTION (weight 0.25) ────────────────────────────
     flag_actions = [
         a for a in action_history
         if a.action_type == "flag_compliance_risk"
@@ -271,13 +235,12 @@ def grade_hard(
             )
             trap_component = 0.99 if correctly_flagged else 0.1
         else:
-            trap_component = -0.40  # false alarm
+            trap_component = -0.40
     else:
         trap_component = 0.1
 
     score += HARD_WEIGHTS["trap"] * trap_component
 
-    # ── DIMENSION 3: ESCALATION (weight 0.20) ────────────────────────────────
     esc_actions  = [a for a in action_history if a.action_type == "escalate_to_professional"]
     did_escalate = len(esc_actions) > 0
 
@@ -297,7 +260,6 @@ def grade_hard(
 
     score += HARD_WEIGHTS["escalation"] * escalation_component
 
-    # ── DIMENSION 4: CALCULATION (weight 0.15, GATED) ────────────────────────
     if decision_raw >= HARD_CALC_GATE:
         calc_bonus = _calc_bonus(action_history, key_calcs, max_bonus=1)
         score += HARD_WEIGHTS["calculation"] * calc_bonus
