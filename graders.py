@@ -20,7 +20,7 @@ from models import FinancialAction, OutcomeTier, ProfessionalType
 # ── OUTPUT NORMALISATION ─────────────────────────────────────────────────────
 
 
-_EPS = 1e-4
+_EPS = 0.01
 
 
 def _to_open_unit(raw: float) -> float:
