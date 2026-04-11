@@ -22,7 +22,7 @@ server = "server.app:main"
 [tool.setuptools]
 include-package-data = true
 packages = ["flidie_env", "flidie_env.server"]
-package-dir = { "flidie_env" = ".", "flidie_env.server" = "server" }
+package-dir = { "" = ".", "flidie_env" = ".", "flidie_env.server" = "server" }
 
 [tool.uv]
 dev-dependencies = [
