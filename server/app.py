@@ -54,8 +54,7 @@ def _get_or_create_session(session_id: str | None) -> tuple[str, FlidieEnv]:
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "1.0.0", "sessions": len(_sessions)}
-
+    return {"status": "healthy", "version": "1.0.0", "sessions": len(_sessions)}
 
 # ── TASKS ─────────────────────────────────────────────────────────────────────
 
@@ -128,6 +127,27 @@ async def generic_exception_handler(request: Request, exc: Exception):
         content={"detail": f"Internal server error: {type(exc).__name__}: {exc}"},
     )
 
+#------------------------------------------------------------------------
+@app.get("/metadata")
+async def metadata():
+    return {
+        "name": "flidie-env",
+        "description": "Finance and Legal Decision Intelligence Environment for Indian financial scenarios."
+    }
+
+@app.get("/schema")
+async def schema():
+    return {
+        "action":      FinancialAction.model_json_schema(),
+        "observation": ScenarioObservation.model_json_schema(),
+        "state":       {"type": "object"}
+    }
+
+@app.post("/mcp")
+async def mcp(request: Request):
+    return {"jsonrpc": "2.0", "id": None, "result": {"capabilities": {}}}
+
+#-------------------------------------------------------------------------
 
 def main():
     import uvicorn
