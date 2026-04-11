@@ -137,11 +137,36 @@ async def metadata():
 
 @app.get("/schema")
 async def schema():
-    return {
-        "action":      FinancialAction.model_json_schema(),
-        "observation": ScenarioObservation.model_json_schema(),
-        "state":       {"type": "object"}
-    }
+    try:
+        return {
+            "action": {
+                "type": "object",
+                "properties": {
+                    "action_type": {"type": "string"},
+                    "option_id": {"type": "string"},
+                    "question_text": {"type": "string"},
+                    "expression": {"type": "string"},
+                    "expected_result": {"type": "number"},
+                    "law_section": {"type": "string"},
+                    "professional_type": {"type": "string"}
+                }
+            },
+            "observation": {
+                "type": "object",
+                "properties": {
+                    "scenario_id": {"type": "string"},
+                    "title": {"type": "string"},
+                    "context": {"type": "string"},
+                    "step_count": {"type": "integer"},
+                    "done": {"type": "boolean"}
+                }
+            },
+            "state": {
+                "type": "object"
+            }
+        }
+    except Exception as e:
+        return {"action": {}, "observation": {}, "state": {}}
 
 @app.post("/mcp")
 async def mcp(request: Request):
