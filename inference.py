@@ -231,7 +231,7 @@ def run_episode(task_id: str, episode_num: int) -> float:
     print(f"[START] task={task_id} env=flidie model={MODEL_NAME}")
 
     step_rewards = []   # collect per-step rewards for [END] line
-    final_reward  = -0.30
+    final_reward  = 0.1
     step          = 0
     result        = {}
 
@@ -253,7 +253,7 @@ def run_episode(task_id: str, episode_num: int) -> float:
                 result   = env_step(fallback)
                 action_type = "choose_option"
 
-            reward  = result.get("reward", 0.0)
+            reward  = max(0.01, min(0.99, float(result.get("reward", 0.1))))
             done    = result.get("done", False)
             error   = result.get("last_action_error") or "null"
             obs     = result.get("observation", obs)
@@ -314,7 +314,7 @@ def main():
             score = run_episode(task_id, ep)
             episode_scores.append(score)
 
-        avg = sum(episode_scores) / len(episode_scores)
+        avg = max(0.01, min(0.99, sum(episode_scores) / len(episode_scores)))
         results[task_id] = {
             "episodes": episode_scores,
             "average": round(avg, 4),

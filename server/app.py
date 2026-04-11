@@ -10,9 +10,9 @@ from typing import Dict
 from fastapi                 import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses       import JSONResponse, HTMLResponse
-from flidie_environment import FlidieEnv
-from models             import FinancialAction, ResetRequest
-from tasks              import list_tasks
+from server.flidie_environment import FlidieEnv
+from server.models             import FinancialAction, ResetRequest
+from server.tasks              import list_tasks
 
 # ── APP INIT ──────────────────────────────────────────────────────────────────
 
