@@ -20,7 +20,7 @@ from models import FinancialAction, OutcomeTier, ProfessionalType
 # ── OUTPUT NORMALISATION ─────────────────────────────────────────────────────
 
 
-_EPS = 0.01
+_EPS = 0.1
 
 
 def _to_open_unit(raw: float) -> float:
@@ -152,15 +152,15 @@ def grade_easy(
     )
 
     if choose_action is None or choose_action.option_id is None:
-        return _to_open_unit(0.001)  # no action → neutral
+        return _to_open_unit(0.1)  # no action → neutral
 
     outcome_map = ground_truth.get("outcome_map", {})
     tier = outcome_map.get(choose_action.option_id)
 
     if tier is None:
-        return _to_open_unit(0.001)  # unknown option → neutral
+        return _to_open_unit(0.1)  # unknown option → neutral
 
-    base_score = TIER_REWARD.get(tier, 0.001)
+    base_score = TIER_REWARD.get(tier, 0.1)
 
     # Calculation quality bonus (max +0.10 for easy) — raw float
     key_calcs  = ground_truth.get("key_calculations", [])
@@ -189,7 +189,7 @@ def grade_medium(
     ]
 
     if not choose_actions:
-        return _to_open_unit(0.001)  # no action → neutral
+        return _to_open_unit(0.1)  # no action → neutral
 
     if step_log:
         step_decisions = {
@@ -213,7 +213,7 @@ def grade_medium(
         weight   = MEDIUM_STEP_WEIGHTS.get(step_num, 0.25)
 
         if tier is not None:
-            step_score       = TIER_REWARD.get(tier, 0.001)
+            step_score       = TIER_REWARD.get(tier, 0.1)
             weighted_score  += step_score * weight
             total_weight_used += weight
 
@@ -248,10 +248,10 @@ def grade_hard(
         (a for a in action_history if a.action_type == "choose_option"),
         None
     )
-    decision_raw = 0.001
+    decision_raw = 0.1
     if choose_action and choose_action.option_id:
         tier         = outcome_map.get(choose_action.option_id)
-        decision_raw = TIER_REWARD.get(tier, 0.001) if tier else 0.001
+        decision_raw = TIER_REWARD.get(tier, 0.1) if tier else 0.1
 
     score = HARD_WEIGHTS["decision"] * decision_raw
 
@@ -261,7 +261,7 @@ def grade_hard(
         if a.action_type == "flag_compliance_risk"
     ]
 
-    trap_component = 0.001
+    trap_component = 0.1
     if flag_actions:
         if has_trap:
             correctly_flagged = any(
@@ -269,11 +269,11 @@ def grade_hard(
                 for a in flag_actions
                 if a.law_section
             )
-            trap_component = 0.99 if correctly_flagged else 0.001
+            trap_component = 0.99 if correctly_flagged else 0.1
         else:
             trap_component = -0.40  # false alarm
     else:
-        trap_component = 0.001
+        trap_component = 0.1
 
     score += HARD_WEIGHTS["trap"] * trap_component
 
@@ -281,7 +281,7 @@ def grade_hard(
     esc_actions  = [a for a in action_history if a.action_type == "escalate_to_professional"]
     did_escalate = len(esc_actions) > 0
 
-    escalation_component = 0.001
+    escalation_component = 0.1
     if needs_esc:
         if did_escalate:
             correct_type_match = any(
@@ -291,9 +291,9 @@ def grade_hard(
             )
             escalation_component = 0.99 if correct_type_match else 0.15
         else:
-            escalation_component = 0.001
+            escalation_component = 0.1
     else:
-        escalation_component = -0.40 if did_escalate else 0.001
+        escalation_component = -0.40 if did_escalate else 0.1
 
     score += HARD_WEIGHTS["escalation"] * escalation_component
 

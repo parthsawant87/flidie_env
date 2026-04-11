@@ -35,7 +35,7 @@ tasks:
       Single-step decision: choose the optimal financial action (A/B/C/D)
       for an Indian taxpayer.
     max_steps: 6
-    score_range: [0.0001, 0.9999]
+    score_range: [0.1, 0.99]
 
   - id: tax_planning
     name: "Multi-Step Tax Planning"
@@ -43,7 +43,7 @@ tasks:
     description: >
       Three-step scenario where each decision changes the financial state.
     max_steps: 10
-    score_range: [0.0001, 0.9999]
+    score_range: [0.1, 0.99]
 
   - id: startup_compliance
     name: "Startup Compliance Audit"
@@ -51,7 +51,7 @@ tasks:
     description: >
       Startup compliance audit across four dimensions.
     max_steps: 10
-    score_range: [0.0001, 0.9999]
+    score_range: [0.1, 0.99]
 
 endpoints:
   reset: /reset
@@ -75,5 +75,5 @@ observation_space:
 
 reward:
   type: float
-  range: [0.0001, 0.9999]
+  range: [0.1, 0.99]
   description: "All rewards strictly inside open interval (0, 1)."

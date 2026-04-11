@@ -44,7 +44,7 @@ class FlidieEnv:
 
     # Timeout penalty — stronger than clinical triage (-0.2) because
     # in finance, failing to advise leaves the client in the wrong state.
-    TIMEOUT_PENALTY: float = 0.0001
+    TIMEOUT_PENALTY: float = 0.1
 
     # Redundant action penalty — universal for all action types
     REDUNDANT_PENALTY: float = -0.05
@@ -231,9 +231,9 @@ class FlidieEnv:
         # Ensure reward is strictly inside (0, 1) for every step.
         # Final rewards from graders already went through _to_open_unit().
         # Intermediate rewards are raw [-1, 1] nudges — normalise them too.
-        _EPS = 1e-4
+        _EPS = 0.1
         if done:
-            reward_clamped = max(_EPS, min(1 - _EPS, reward))
+            reward_clamped = max(0.1, min(0.99, reward))
         else:
             reward_clamped = _to_open_unit(reward)
 
