@@ -1,5 +1,4 @@
-# openenv.yaml — FLIDIE OpenEnv Submission
-spec_version: 1.0
+spec_version: 1
 name: flidie-env
 type: space
 runtime: docker
@@ -27,34 +26,30 @@ task_ids:
   - tax_planning
   - startup_compliance
 
-environment:
-  name: "flidie-env"
-  description: "Finance and Legal Decision Intelligence Environment for Indian financial scenarios."
-  version: "1.0.0"
-  tasks:
-    - id: financial_optimize
-      name: "Financial Decision Optimization"
-      difficulty: easy
-      description: "Single-step decision: choose the optimal financial action for an Indian taxpayer."
-      max_steps: 6
-      score_range: [0.1, 0.99]
-      grader: flidie_env.graders.grade_easy
+tasks:
+  - id: financial_optimize
+    name: "Financial Decision Optimization"
+    difficulty: easy
+    description: "Single-step decision: choose the optimal financial action for an Indian taxpayer."
+    max_steps: 6
+    score_range: [0.1, 0.99]
+    grader: graders.grade_easy
 
-    - id: tax_planning
-      name: "Multi-Step Tax Planning"
-      difficulty: medium
-      description: "Three-step scenario where each decision changes the financial state."
-      max_steps: 10
-      score_range: [0.1, 0.99]
-      grader: flidie_env.graders.grade_medium
+  - id: tax_planning
+    name: "Multi-Step Tax Planning"
+    difficulty: medium
+    description: "Three-step scenario where each decision changes the financial state."
+    max_steps: 10
+    score_range: [0.1, 0.99]
+    grader: graders.grade_medium
 
-    - id: startup_compliance
-      name: "Startup Compliance Audit"
-      difficulty: hard
-      description: "Startup compliance audit across four dimensions."
-      max_steps: 10
-      score_range: [0.1, 0.99]
-      grader: flidie_env.graders.grade_hard
+  - id: startup_compliance
+    name: "Startup Compliance Audit"
+    difficulty: hard
+    description: "Startup compliance audit across four dimensions."
+    max_steps: 10
+    score_range: [0.1, 0.99]
+    grader: graders.grade_hard
 
 endpoints:
   reset: /reset
