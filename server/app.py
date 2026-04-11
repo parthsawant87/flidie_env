@@ -48,6 +48,7 @@ def _get_or_create_session(session_id: str | None) -> tuple[str, FlidieEnv]:
     if key not in _sessions:
         _sessions[key] = FlidieEnv()
     return key, _sessions[key]
+  
 
 
 # ── HEALTH ────────────────────────────────────────────────────────────────────
@@ -55,6 +56,36 @@ def _get_or_create_session(session_id: str | None) -> tuple[str, FlidieEnv]:
 @app.get("/health")
 async def health():
     return {"status": "healthy", "version": "1.0.0", "sessions": len(_sessions)}
+
+#_______________________________________________________
+@app.post("/grader")
+async def grader_endpoint(request: Request):
+    """
+    Direct grader endpoint. Validator calls this to check task scores.
+    Body: {"task_id": "...", "action_history": [...], "ground_truth": {...}}
+    Returns: {"reward": float}
+    """
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+ 
+    task_id        = body.get("task_id", "financial_optimize")
+    action_history = body.get("action_history", [])
+    ground_truth   = body.get("ground_truth", {})
+    step_log       = body.get("step_log", None)
+ 
+    if task_id == "financial_optimize":
+        score = grade_easy(action_history, ground_truth)
+    elif task_id == "tax_planning":
+        score = grade_medium(action_history, ground_truth, step_log)
+    else:
+        score = grade_hard(action_history, ground_truth)
+ 
+    score = max(0.02, min(0.98, float(score)))
+    return {"reward": score, "task_id": task_id}
+ 
+ 
 
 # ── TASKS ─────────────────────────────────────────────────────────────────────
 
