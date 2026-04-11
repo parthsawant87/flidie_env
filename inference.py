@@ -271,12 +271,11 @@ def run_episode(task_id: str, episode_num: int) -> float:
                 break
 
     finally:
-        # ── Required output: one [END] line — always emitted even on exception
-        rewards_str = ",".join(f"{r:.4f}" for r in step_rewards)
-        success     = str(final_reward > 0).lower()
+        rewards_str  = ",".join(f"{r:.4f}" for r in step_rewards)
+        success      = str(final_reward > 0.5).lower()
         actual_steps = len(step_rewards)
-        print(f"[END] success={success} steps={actual_steps} rewards={rewards_str}")
-
+        print(f"[END] success={success} steps={actual_steps} score={final_reward:.4f} rewards={rewards_str}")
+    
     return final_reward
 
 
